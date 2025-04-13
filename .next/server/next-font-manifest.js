@@ -1,1 +1,1 @@
-self.__NEXT_FONT_MANIFEST='{"pages":{},"app":{"/Users/vignesh/Github-Personal/sonas/src/app/layout":["static/media/140abbddcf431ecc-s.p.ttf","static/media/140abbddcf431ecc-s.p.ttf"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":false}';
+self.__NEXT_FONT_MANIFEST="{\"pages\":{},\"app\":{\"/Users/vignesh/Github-Personal/sonas/src/app/layout\":[\"static/media/140abbddcf431ecc-s.p.ttf\",\"static/media/140abbddcf431ecc-s.p.ttf\"]},\"appUsingSizeAdjust\":true,\"pagesUsingSizeAdjust\":false}"
