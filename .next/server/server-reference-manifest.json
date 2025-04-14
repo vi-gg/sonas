@@ -1,5 +1,30 @@
 {
-  "node": {},
+  "node": {
+    "7bffff7722f0fd257015f7a0740a0e61f28ae3b6": {
+      "workers": {
+        "app/login2/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fvignesh%2FGithub-Personal%2Fsonas%2Fsrc%2Fapp%2Flogin2%2Factions.ts%22%2C%5B%22signup%22%2C%22login%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/login2/page": "rsc"
+      }
+    },
+    "a204de4f20bf93cf43d5ce84d96d0d6afc2b7fbb": {
+      "workers": {
+        "app/login2/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fvignesh%2FGithub-Personal%2Fsonas%2Fsrc%2Fapp%2Flogin2%2Factions.ts%22%2C%5B%22signup%22%2C%22login%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/login2/page": "rsc"
+      }
+    },
+    "0ae87917d6b4de86a918085a8c26491e211db76e": {
+      "workers": {
+        "app/private/page": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fvignesh%2FGithub-Personal%2Fsonas%2Fsrc%2Fapp%2Fauth%2Factions.ts%22%2C%5B%22signOut%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/private/page": "rsc"
+      }
+    }
+  },
   "edge": {},
-  "encryptionKey": "dFgj6vBwF4Ba+9rhT/4HNiH6rGGMUyQ2cseadAISUE8="
+  "encryptionKey": "04Jay4/88mT5nendiyIZ13CpzI8WYoJLDCDqSYIe5Zc="
 }

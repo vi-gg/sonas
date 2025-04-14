@@ -4,3 +4,6 @@ src/.DS_Store
 .env.local
 .env
 /.next
+/.next
+/.next/cache
+/.next/cache/webpack
