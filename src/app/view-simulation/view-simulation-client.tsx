@@ -23,7 +23,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { createClient } from "../../../utils/supabase/client";
-// Mock data import removed to use real data
+// Import mock data only for development environments
+// import { addMockResultsToSimulations } from "./mock-data";
 
 interface Simulation {
   id: string;
@@ -83,6 +84,10 @@ export default function ViewSimulationClient({
   const [aggregatedResults, setAggregatedResults] = useState<
     AggregatedResponse[]
   >([]);
+  const [isPersonasOpen, setIsPersonasOpen] = useState(false);
+  const [personasList, setPersonasList] = useState<any[]>([]);
+  const [selectedPersona, setSelectedPersona] = useState<any | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Handler for View Details button
   const handleViewDetails = (simulation: Simulation) => {
@@ -104,6 +109,70 @@ export default function ViewSimulationClient({
       setAggregatedResults([]);
       setIsResultsOpen(true);
     }
+  };
+
+  // Handler for View Personas button
+  const handleViewPersonas = (simulation: Simulation) => {
+    setCurrentSimulation(simulation);
+
+    // Process results if they exist
+    if (simulation.results && simulation.results.length > 0) {
+      const personas = extractUniquePersonas(simulation.results);
+      setPersonasList(personas);
+      setIsPersonasOpen(true);
+      setSelectedPersona(null); // Reset any selected persona
+    } else {
+      // Handle case where no results are available
+      setPersonasList([]);
+      setIsPersonasOpen(true);
+    }
+  };
+
+  // Extract unique personas from simulation results
+  const extractUniquePersonas = (results: PersonaResponse[]) => {
+    const personaMap = new Map();
+
+    results.forEach((response) => {
+      // Remove the "Persona: " prefix if it exists
+      const personaName = response.persona.replace("Persona: ", "");
+
+      if (!personaMap.has(personaName)) {
+        // Parse the backstory to extract demographic information
+        const backstory = response.persona_backstory;
+
+        // Extract demographic details using regex
+        const nameMatch = backstory.match(/name\s*:\s*([^,]+)/i);
+        const countryMatch = backstory.match(/country\s*:\s*([^,]+)/i);
+        const genderMatch = backstory.match(/gender\s*:\s*([^,]+)/i);
+        const ageMatch = backstory.match(/age\s*:\s*(\d+)/i);
+        const incomeMatch = backstory.match(/household_income\s*:\s*([^,]+)/i);
+        const industryMatch = backstory.match(/industry\s*:\s*([^,]+)/i);
+
+        personaMap.set(personaName, {
+          name: nameMatch ? nameMatch[1].trim() : personaName,
+          demographics: {
+            country: countryMatch ? countryMatch[1].trim() : "",
+            gender: genderMatch ? genderMatch[1].trim() : "",
+            age: ageMatch ? parseInt(ageMatch[1]) : null,
+            income: incomeMatch ? incomeMatch[1].trim() : "",
+            industry: industryMatch ? industryMatch[1].trim() : "",
+          },
+          backstory: backstory,
+          responses: [],
+        });
+      }
+
+      // Add this response to the persona's responses
+      const persona = personaMap.get(personaName);
+      persona.responses.push({
+        question: response.question.replace("Answer : ", ""),
+        answer: response.answer,
+      });
+      personaMap.set(personaName, persona);
+    });
+
+    // Convert map to array
+    return Array.from(personaMap.values());
   };
 
   // Process the results to get aggregated data
@@ -167,8 +236,12 @@ export default function ViewSimulationClient({
           throw error;
         }
 
-        // Use actual data from Supabase
+        // Use actual data from Supabase in production
         setSimulations(data || []);
+
+        // For development/testing, uncomment below to use mock data:
+        // const simulationsWithMockData = addMockResultsToSimulations(data || []);
+        // setSimulations(simulationsWithMockData);
       } catch (err) {
         console.error("Error fetching simulations:", err);
         setError("Failed to load simulations. Please try again later.");
@@ -261,7 +334,7 @@ export default function ViewSimulationClient({
                 </div>
               </CardContent>
               <Separator />
-              <CardFooter className="flex justify-between pt-4">
+              <CardFooter className="flex justify-between pt-4 flex-wrap gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -275,6 +348,14 @@ export default function ViewSimulationClient({
                   onClick={() => handleViewResults(simulation)}
                 >
                   View Results
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewPersonas(simulation)}
+                  className="w-full mt-2"
+                >
+                  View Personas
                 </Button>
               </CardFooter>
             </Card>
@@ -431,6 +512,229 @@ export default function ViewSimulationClient({
 
               <DialogFooter>
                 <Button onClick={() => setIsResultsOpen(false)}>Close</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Personas Dialog */}
+      <Dialog open={isPersonasOpen} onOpenChange={setIsPersonasOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          {currentSimulation && (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  {selectedPersona
+                    ? `Persona: ${selectedPersona.name}`
+                    : `Personas: ${currentSimulation.simulation_name}`}
+                </DialogTitle>
+                <DialogDescription>
+                  {selectedPersona
+                    ? "Detailed information about this persona"
+                    : "List of all personas in this simulation"}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="py-4">
+                {personasList.length > 0 ? (
+                  selectedPersona ? (
+                    // Detailed persona view
+                    <div className="space-y-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedPersona(null)}
+                        className="mb-2"
+                      >
+                        ← Back to persona list
+                      </Button>
+
+                      <Card className="border shadow-sm">
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle>{selectedPersona.name}</CardTitle>
+                              <CardDescription className="mt-1">
+                                {selectedPersona.demographics.age} years old •{" "}
+                                {selectedPersona.demographics.gender} •{" "}
+                                {selectedPersona.demographics.industry}
+                              </CardDescription>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setIsChatOpen(true)}
+                              className="text-primary"
+                            >
+                              Chat with Persona
+                            </Button>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {/* Demographics section */}
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold mb-2">
+                              Demographics
+                            </h4>
+                            <div className="grid grid-cols-2 gap-y-1 text-sm">
+                              <div className="text-muted-foreground">
+                                Country:
+                              </div>
+                              <div>{selectedPersona.demographics.country}</div>
+
+                              <div className="text-muted-foreground">
+                                Gender:
+                              </div>
+                              <div>{selectedPersona.demographics.gender}</div>
+
+                              <div className="text-muted-foreground">Age:</div>
+                              <div>{selectedPersona.demographics.age}</div>
+
+                              <div className="text-muted-foreground">
+                                Income:
+                              </div>
+                              <div>{selectedPersona.demographics.income}</div>
+
+                              <div className="text-muted-foreground">
+                                Industry:
+                              </div>
+                              <div>{selectedPersona.demographics.industry}</div>
+                            </div>
+                          </div>
+
+                          {/* Responses section */}
+                          {selectedPersona.responses.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold mb-2">
+                                Responses
+                              </h4>
+                              <div className="space-y-3">
+                                {selectedPersona.responses.map(
+                                  (
+                                    response: {
+                                      question: string;
+                                      answer: string;
+                                    },
+                                    index: number
+                                  ) => (
+                                    <div
+                                      key={index}
+                                      className="p-3 bg-muted/50 rounded-md"
+                                    >
+                                      <div className="text-sm font-medium">
+                                        {response.question}
+                                      </div>
+                                      <div className="mt-1 text-sm">
+                                        {response.answer}
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    // Personas list view
+                    <div className="space-y-2">
+                      {personasList.map((persona, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 border rounded-md hover:bg-accent/10"
+                        >
+                          <div>
+                            <h4 className="font-medium">{persona.name}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {persona.demographics.age} years •{" "}
+                              {persona.demographics.gender} •{" "}
+                              {persona.demographics.industry}
+                            </p>
+                          </div>
+                          <Button
+                            variant="link"
+                            onClick={() => setSelectedPersona(persona)}
+                          >
+                            View More
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <div className="flex flex-col justify-center items-center h-40 space-y-4">
+                    <p>No personas available for this simulation.</p>
+                    <p className="text-sm text-muted-foreground">
+                      The simulation data has been saved to Supabase, but the
+                      personas data is not available. In production, this will
+                      display actual persona data from the API.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button onClick={() => setIsPersonasOpen(false)}>Close</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Chat with Persona Dialog */}
+      <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          {selectedPersona && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Chat with {selectedPersona.name}</DialogTitle>
+                <DialogDescription>
+                  Have a conversation with this persona based on their
+                  demographic profile
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="py-4 space-y-4">
+                {/* Chat history would go here */}
+                <div className="border rounded-md p-4 h-[300px] overflow-y-auto flex flex-col space-y-4">
+                  {/* Example message from persona */}
+                  <div className="flex items-start space-x-2">
+                    <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold">
+                      {selectedPersona.name.charAt(0)}
+                    </div>
+                    <div className="bg-muted p-3 rounded-md max-w-[80%]">
+                      <p className="text-sm">
+                        Hello! I'm {selectedPersona.name}, a{" "}
+                        {selectedPersona.demographics.age}-year-old{" "}
+                        {selectedPersona.demographics.gender} working in the{" "}
+                        {selectedPersona.demographics.industry} industry. How
+                        can I help you?
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Chat input */}
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    placeholder="Type your message here..."
+                    className="flex-1 p-2 border rounded-md"
+                  />
+                  <Button>Send</Button>
+                </div>
+
+                <p className="text-xs text-muted-foreground mt-2">
+                  This chat is a demonstration of the persona concept. In
+                  production, it would connect to a large language model to
+                  simulate conversation.
+                </p>
+              </div>
+
+              <DialogFooter>
+                <Button onClick={() => setIsChatOpen(false)}>Close</Button>
               </DialogFooter>
             </>
           )}
