@@ -2,5 +2,6 @@
   "/_not-found/page": "app/_not-found/page.js",
   "/new-simulation/page": "app/new-simulation/page.js",
   "/view-simulation/page": "app/view-simulation/page.js",
-  "/api/simulation/route": "app/api/simulation/route.js"
+  "/support/page": "app/support/page.js",
+  "/account/page": "app/account/page.js"
 }

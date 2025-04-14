@@ -23,6 +23,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { createClient } from "../../../utils/supabase/client";
+// Mock data import removed to use real data
 
 interface Simulation {
   id: string;
@@ -41,6 +42,26 @@ interface Simulation {
     options: string[];
   }>;
   formatted_data: any;
+  results?: any[];
+  status?: string;
+}
+
+interface PersonaResponse {
+  answer: string;
+  persona: string;
+  question: string;
+  persona_backstory: string;
+}
+
+interface AggregatedResponse {
+  question: string;
+  options: {
+    [option: string]: {
+      count: number;
+      percentage: number;
+    };
+  };
+  totalResponses: number;
 }
 
 interface ViewSimulationClientProps {
@@ -58,11 +79,79 @@ export default function ViewSimulationClient({
   const [currentSimulation, setCurrentSimulation] = useState<Simulation | null>(
     null
   );
+  const [isResultsOpen, setIsResultsOpen] = useState(false);
+  const [aggregatedResults, setAggregatedResults] = useState<
+    AggregatedResponse[]
+  >([]);
 
   // Handler for View Details button
   const handleViewDetails = (simulation: Simulation) => {
     setCurrentSimulation(simulation);
     setIsDetailsOpen(true);
+  };
+
+  // Handler for View Results button
+  const handleViewResults = (simulation: Simulation) => {
+    setCurrentSimulation(simulation);
+
+    // Process results if they exist
+    if (simulation.results && simulation.results.length > 0) {
+      const processed = processResults(simulation.results);
+      setAggregatedResults(processed);
+      setIsResultsOpen(true);
+    } else {
+      // Handle case where no results are available
+      setAggregatedResults([]);
+      setIsResultsOpen(true);
+    }
+  };
+
+  // Process the results to get aggregated data
+  const processResults = (results: PersonaResponse[]): AggregatedResponse[] => {
+    // Group responses by question
+    const questionMap: { [key: string]: PersonaResponse[] } = {};
+
+    results.forEach((response) => {
+      // Clean up the question string to remove "Answer : " prefix if it exists
+      const cleanQuestion = response.question.replace("Answer : ", "");
+
+      if (!questionMap[cleanQuestion]) {
+        questionMap[cleanQuestion] = [];
+      }
+      questionMap[cleanQuestion].push(response);
+    });
+
+    // Convert the grouped data to our aggregated format
+    return Object.keys(questionMap).map((questionText) => {
+      const responses = questionMap[questionText];
+      const totalResponses = responses.length;
+
+      // Count occurrences of each answer
+      const optionCounts: { [option: string]: number } = {};
+      responses.forEach((response) => {
+        if (!optionCounts[response.answer]) {
+          optionCounts[response.answer] = 0;
+        }
+        optionCounts[response.answer]++;
+      });
+
+      // Convert counts to our final format with percentages
+      const options: {
+        [option: string]: { count: number; percentage: number };
+      } = {};
+      Object.keys(optionCounts).forEach((option) => {
+        options[option] = {
+          count: optionCounts[option],
+          percentage: Math.round((optionCounts[option] / totalResponses) * 100),
+        };
+      });
+
+      return {
+        question: questionText,
+        options,
+        totalResponses,
+      };
+    });
   };
 
   useEffect(() => {
@@ -78,6 +167,7 @@ export default function ViewSimulationClient({
           throw error;
         }
 
+        // Use actual data from Supabase
         setSimulations(data || []);
       } catch (err) {
         console.error("Error fetching simulations:", err);
@@ -153,8 +243,19 @@ export default function ViewSimulationClient({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Status:</span>
-                    <span className="font-medium text-green-600">
-                      Completed
+                    <span
+                      className={`font-medium ${
+                        simulation.status === "completed"
+                          ? "text-green-600"
+                          : simulation.status === "processing"
+                            ? "text-amber-600"
+                            : "text-gray-600"
+                      }`}
+                    >
+                      {simulation.status
+                        ? simulation.status.charAt(0).toUpperCase() +
+                          simulation.status.slice(1)
+                        : "Completed"}
                     </span>
                   </div>
                 </div>
@@ -168,8 +269,12 @@ export default function ViewSimulationClient({
                 >
                   View Details
                 </Button>
-                <Button variant="outline" size="sm">
-                  Export Data
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewResults(simulation)}
+                >
+                  View Results
                 </Button>
               </CardFooter>
             </Card>
@@ -260,6 +365,72 @@ export default function ViewSimulationClient({
 
               <DialogFooter>
                 <Button onClick={() => setIsDetailsOpen(false)}>Close</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Simulation Results Dialog */}
+      <Dialog open={isResultsOpen} onOpenChange={setIsResultsOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {currentSimulation && (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  Results: {currentSimulation.simulation_name}
+                </DialogTitle>
+                <DialogDescription>
+                  Response analysis by question and option
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="py-4 space-y-6">
+                {aggregatedResults.length > 0 ? (
+                  aggregatedResults.map((result, index) => (
+                    <div key={index} className="p-4 border rounded-md">
+                      <h3 className="text-lg font-semibold mb-3">
+                        Question: {result.question}
+                      </h3>
+
+                      <div className="ml-4 mb-2">
+                        <h4 className="font-medium">Responses:</h4>
+                        <div className="space-y-1 mt-2">
+                          {Object.entries(result.options).map(
+                            ([option, data], optIndex) => (
+                              <div
+                                key={optIndex}
+                                className="flex justify-between"
+                              >
+                                <span>{option}:</span>
+                                <span>
+                                  {data.count} responses ({data.percentage}%)
+                                </span>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-sm text-muted-foreground mt-4">
+                        {result.totalResponses} total responses
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col justify-center items-center h-40 space-y-4">
+                    <p>No results available for this simulation.</p>
+                    <p className="text-sm text-muted-foreground">
+                      The simulation data has been saved to Supabase, but the
+                      results data is not available. In production, this will
+                      display actual persona responses from the API.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button onClick={() => setIsResultsOpen(false)}>Close</Button>
               </DialogFooter>
             </>
           )}
