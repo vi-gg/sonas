@@ -56,6 +56,7 @@ export default function NewSimulationClient({
   const handleSubmit = async () => {
     // Transform the form data into the required JSON format
     const formattedData = {
+      simulation_name: formData.simulationName,
       num_responses: formData.responseCount.toString(),
       target_audience: {
         country:
@@ -111,7 +112,9 @@ export default function NewSimulationClient({
 
       const result = await response.json();
       console.log("Simulation submitted successfully:", result);
-      // You could add toast notification or redirect here upon success
+
+      // Redirect to view simulations page
+      router.push("/view-simulation");
     } catch (error) {
       console.error("Error submitting simulation:", error);
       // You could add toast notification or alert here to show the error
@@ -128,10 +131,16 @@ export default function NewSimulationClient({
   const parseIncomeRange = (incomeStr: string): [string, string] => {
     if (incomeStr === "200k+") {
       return ["150k", "200k+"];
-    } else if (incomeStr === "100k-200k") {
+    } else if (incomeStr === "100-200k" || incomeStr === "100k-200k") {
       return ["100k", "200k"];
-    } else if (incomeStr === "50k-100k") {
-      return ["50k", "100k"];
+    } else if (incomeStr === "60-100k" || incomeStr === "50k-100k") {
+      return ["60k", "100k"];
+    } else if (incomeStr === "40-60k") {
+      return ["40k", "60k"];
+    } else if (incomeStr === "20-40k") {
+      return ["20k", "40k"];
+    } else if (incomeStr === "10-20k") {
+      return ["10k", "20k"];
     } else {
       return ["30k", "150k"]; // Default range
     }
