@@ -51,6 +51,7 @@ export async function POST(request: Request) {
         })
       ),
       formatted_data: payload,
+      status: "processing", // Add status to indicate simulation is in progress
     };
 
     // Save to Supabase
