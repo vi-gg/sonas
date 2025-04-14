@@ -10,5 +10,5 @@ export default async function SupportPage() {
     redirect("/login");
   }
 
-  return <SupportClient />;
+  return <SupportClient user={data.user} />;
 }

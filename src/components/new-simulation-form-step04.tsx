@@ -92,7 +92,7 @@ export function NewSimulationFormStep04({
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-background p-8",
+        "rounded-lg border border-border bg-background p-8 w-[768px]",
         className
       )}
     >

@@ -10,5 +10,5 @@ export default async function ViewSimulationPage() {
     redirect("/login");
   }
 
-  return <ViewSimulationClient />;
+  return <ViewSimulationClient user={data.user} />;
 }

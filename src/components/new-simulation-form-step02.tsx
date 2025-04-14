@@ -110,11 +110,18 @@ export function NewSimulationFormStep02({
   };
 
   return (
-    <div className={cn("p-6 bg-white rounded-lg border border-border", className)}>
+    <div
+      className={cn(
+        "p-6 bg-white rounded-lg border border-border w-[768px]",
+        className
+      )}
+    >
       <div className="space-y-6">
         <div>
           <p className="text-sm text-muted-foreground">Step 02</p>
-          <h2 className="text-2xl font-heading font-semibold mt-1">Choose demographics</h2>
+          <h2 className="text-2xl font-heading font-semibold mt-1">
+            Choose demographics
+          </h2>
         </div>
         <div className="space-y-2">
           <p className="font-medium">How many responses do you want?</p>
@@ -143,15 +150,29 @@ export function NewSimulationFormStep02({
           </div>
         </div>
         <div className="space-y-2">
-          <p className="font-medium">What type of filtering criteria do you want?</p>
+          <p className="font-medium">
+            What type of filtering criteria do you want?
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Button variant="outline" className="font-normal" onClick={() => setCountryOpen(true)}>
+            <Button
+              variant="outline"
+              className="font-normal"
+              onClick={() => setCountryOpen(true)}
+            >
               Country
             </Button>
-            <Button variant="outline" className="font-normal" onClick={() => setGenderOpen(true)}>
+            <Button
+              variant="outline"
+              className="font-normal"
+              onClick={() => setGenderOpen(true)}
+            >
               Gender
             </Button>
-            <Button variant="outline" className="font-normal" onClick={() => setAgeRangeOpen(true)}>
+            <Button
+              variant="outline"
+              className="font-normal"
+              onClick={() => setAgeRangeOpen(true)}
+            >
               Age Range
             </Button>
             <Button
@@ -175,7 +196,10 @@ export function NewSimulationFormStep02({
           <Button variant="outline" onClick={handlePrevious}>
             Previous
           </Button>
-          <Button className="bg-[#0F172A] text-white hover:bg-[#1E293B]" onClick={handleNext}>
+          <Button
+            className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
+            onClick={handleNext}
+          >
             Next
           </Button>
         </div>

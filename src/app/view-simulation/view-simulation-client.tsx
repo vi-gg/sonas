@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { User } from "@supabase/supabase-js";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   Card,
@@ -14,7 +15,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-export default function ViewSimulationClient() {
+interface ViewSimulationClientProps {
+  user: User;
+}
+
+export default function ViewSimulationClient({
+  user,
+}: ViewSimulationClientProps) {
   const router = useRouter();
 
   // Dummy simulation data
@@ -50,7 +57,13 @@ export default function ViewSimulationClient() {
   ];
 
   return (
-    <AppSidebar activePage="view-simulation" pageTitle="View Simulations">
+    <AppSidebar
+      activePage="view-simulation"
+      pageTitle="View Simulations"
+      userName={user.user_metadata?.name || "User"}
+      userEmail={user.email || ""}
+      userInitials={user.email?.substring(0, 2).toUpperCase() || "U"}
+    >
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Your Simulations</h1>
         <Button onClick={() => router.push("/new-simulation")}>

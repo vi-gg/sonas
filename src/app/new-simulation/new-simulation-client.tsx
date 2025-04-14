@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { User } from "@supabase/supabase-js";
 import { AppSidebar } from "@/components/app-sidebar";
 import { createClient } from "../../../utils/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,13 @@ import { NewSimulationFormStep02 } from "@/components/new-simulation-form-step02
 import { NewSimulationFormStep03 } from "@/components/new-simulation-form-step03";
 import { NewSimulationFormStep04 } from "@/components/new-simulation-form-step04";
 
-export default function NewSimulationClient() {
+interface NewSimulationClientProps {
+  user: User;
+}
+
+export default function NewSimulationClient({
+  user,
+}: NewSimulationClientProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -200,7 +207,13 @@ export default function NewSimulationClient() {
   };
 
   return (
-    <AppSidebar activePage="new-simulation" pageTitle="New Simulation">
+    <AppSidebar
+      activePage="new-simulation"
+      pageTitle="New Simulation"
+      userName={user.user_metadata?.name || "User"}
+      userEmail={user.email || ""}
+      userInitials={user.email?.substring(0, 2).toUpperCase() || "U"}
+    >
       <div className="flex flex-col items-center h-full">
         {renderProgressIndicator()}
         {renderCurrentStep()}

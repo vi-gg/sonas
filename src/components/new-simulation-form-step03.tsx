@@ -22,9 +22,13 @@ export function NewSimulationFormStep03({
   updateFormData,
 }: NewSimulationFormStep03Props) {
   // Initialize with questions from formData if they exist, otherwise empty array
-  const [questions, setQuestions] = useState<QuestionData[]>(formData?.questions || []);
+  const [questions, setQuestions] = useState<QuestionData[]>(
+    formData?.questions || []
+  );
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState<QuestionData | undefined>(undefined);
+  const [currentQuestion, setCurrentQuestion] = useState<
+    QuestionData | undefined
+  >(undefined);
   const [isEditing, setIsEditing] = useState(false);
 
   // Initialize from form data when it changes
@@ -50,7 +54,9 @@ export function NewSimulationFormStep03({
     let updatedQuestions;
 
     if (isEditing) {
-      updatedQuestions = questions.map((q) => (q.id === questionData.id ? questionData : q));
+      updatedQuestions = questions.map((q) =>
+        q.id === questionData.id ? questionData : q
+      );
     } else {
       updatedQuestions = [...questions, questionData];
     }
@@ -67,7 +73,9 @@ export function NewSimulationFormStep03({
 
   const handleDeleteQuestion = () => {
     if (currentQuestion) {
-      const updatedQuestions = questions.filter((q) => q.id !== currentQuestion.id);
+      const updatedQuestions = questions.filter(
+        (q) => q.id !== currentQuestion.id
+      );
       setQuestions(updatedQuestions);
 
       // Update parent form data
@@ -97,7 +105,12 @@ export function NewSimulationFormStep03({
   };
 
   return (
-    <div className={cn("rounded-lg border border-border bg-background p-8", className)}>
+    <div
+      className={cn(
+        "rounded-lg border border-border bg-background p-8 w-[768px]",
+        className
+      )}
+    >
       <div className="space-y-6">
         <div>
           <p className="text-sm text-muted-foreground">Step 03</p>
@@ -132,10 +145,17 @@ export function NewSimulationFormStep03({
         </div>
 
         <div className="flex justify-between pt-4">
-          <Button variant="outline" className="border border-border" onClick={handlePrevious}>
+          <Button
+            variant="outline"
+            className="border border-border"
+            onClick={handlePrevious}
+          >
             Previous
           </Button>
-          <Button className="bg-[#0F172A] text-white hover:bg-[#1E293B]" onClick={handleNext}>
+          <Button
+            className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
+            onClick={handleNext}
+          >
             Next
           </Button>
         </div>

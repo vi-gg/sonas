@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { User } from "@supabase/supabase-js";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-export default function SupportClient() {
+interface SupportClientProps {
+  user: User;
+}
+
+export default function SupportClient({ user }: SupportClientProps) {
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -52,7 +57,13 @@ export default function SupportClient() {
   ];
 
   return (
-    <AppSidebar activePage="support" pageTitle="Support">
+    <AppSidebar
+      activePage="support"
+      pageTitle="Support"
+      userName={user.user_metadata?.name || "User"}
+      userEmail={user.email || ""}
+      userInitials={user.email?.substring(0, 2).toUpperCase() || "U"}
+    >
       <h1 className="text-2xl font-bold mb-6">Support Center</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
