@@ -97,10 +97,87 @@ export default function NewSimulationPage() {
 
   // Final submission handler
   const handleSubmit = async () => {
-    console.log("Form data to be submitted:", formData);
-    // Here you would make your API calls:
-    // 1. Save data to Supabase
-    // 2. Run the simulation
+    // Transform the form data into the required JSON format
+    const formattedData = {
+      num_responses: formData.responseCount.toString(),
+      target_audience: {
+        country:
+          formData.demographics.countries[0] === "US"
+            ? "United States"
+            : formData.demographics.countries[0],
+        gender:
+          formData.demographics.genders.length === 3
+            ? "All"
+            : formData.demographics.genders.join(", "),
+        age_range: parseAgeRange(formData.demographics.ageRanges[0]),
+        household_income_range: parseIncomeRange(
+          formData.demographics.householdIncomes[0]
+        ),
+        employment: {
+          employment_status: ["employed"],
+          industry: [
+            "healthcare",
+            "technology",
+            "education",
+            "retail",
+            "finance",
+          ],
+        },
+      },
+      survey: formData.questions.map(
+        (q: { question: string; options: string[] }) => ({
+          question: q.question,
+          choices: q.options,
+        })
+      ),
+    };
+
+    // Log the formatted JSON to the console
+    console.log(JSON.stringify(formattedData, null, 2));
+
+    try {
+      // Send the formatted data to the personas endpoint via our API
+      const response = await fetch("/api/simulation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formattedData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error submitting simulation:", errorData);
+        // You could add toast notification or alert here to show the error
+        return;
+      }
+
+      const result = await response.json();
+      console.log("Simulation submitted successfully:", result);
+      // You could add toast notification or redirect here upon success
+    } catch (error) {
+      console.error("Error submitting simulation:", error);
+      // You could add toast notification or alert here to show the error
+    }
+  };
+
+  // Helper function to parse age range string into array of numbers
+  const parseAgeRange = (ageRangeStr: string): [number, number] => {
+    const [min, max] = ageRangeStr.split("-").map(Number);
+    return [min, max || 65]; // Default max to 65 if not specified
+  };
+
+  // Helper function to parse income range string
+  const parseIncomeRange = (incomeStr: string): [string, string] => {
+    if (incomeStr === "200k+") {
+      return ["150k", "200k+"];
+    } else if (incomeStr === "100k-200k") {
+      return ["100k", "200k"];
+    } else if (incomeStr === "50k-100k") {
+      return ["50k", "100k"];
+    } else {
+      return ["30k", "150k"]; // Default range
+    }
   };
 
   // Progress indicator
