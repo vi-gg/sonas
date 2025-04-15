@@ -1154,7 +1154,7 @@ export default function ViewSimulationClient({
                             variant="outline"
                             size="sm"
                             onClick={() => setSelectedPersona(persona)}
-                            className="border-purple-200 text-purple-600 hover:bg-purple-50"
+                            className="border-purple-200 text-purple-600 hover:text-purple-600 hover:bg-purple-50"
                           >
                             View Details
                           </Button>
