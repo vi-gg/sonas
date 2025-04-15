@@ -298,65 +298,89 @@ export default function ViewSimulationClient({
           {simulations.map((simulation) => (
             <Card
               key={simulation.id}
-              className="shadow-md hover:shadow-lg transition-shadow"
+              className="border border-border rounded-lg overflow-hidden"
             >
-              <CardHeader>
-                <CardTitle>{simulation.simulation_name}</CardTitle>
-                <CardDescription>
-                  Created on {formatDate(simulation.created_at)}
+              <CardHeader className="pb-2 relative">
+                <div className="absolute top-3 right-3">
+                  <span
+                    className={`flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${
+                      simulation.status === "completed"
+                        ? "bg-green-100 text-green-700"
+                        : simulation.status === "processing"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    <span
+                      className={`mr-1 w-1.5 h-1.5 rounded-full ${
+                        simulation.status === "completed"
+                          ? "bg-green-500"
+                          : simulation.status === "processing"
+                            ? "bg-amber-500"
+                            : "bg-gray-500"
+                      }`}
+                    ></span>
+                    {simulation.status
+                      ? simulation.status.charAt(0).toUpperCase() +
+                        simulation.status.slice(1)
+                      : "Completed"}
+                  </span>
+                </div>
+                <CardTitle className="text-lg mt-1">
+                  {simulation.simulation_name}
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Simulation date: {formatDate(simulation.created_at)}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Responses:</span>
-                    <span className="font-medium">
-                      {simulation.response_count}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Status:</span>
-                    <span
-                      className={`font-medium ${
-                        simulation.status === "completed"
-                          ? "text-green-600"
-                          : simulation.status === "processing"
-                            ? "text-amber-600"
-                            : "text-gray-600"
-                      }`}
+              <CardContent className="pb-4">
+                <div className="mt-1">
+                  <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3 mr-1"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
                     >
-                      {simulation.status
-                        ? simulation.status.charAt(0).toUpperCase() +
-                          simulation.status.slice(1)
-                        : "Completed"}
-                    </span>
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                      <path
+                        fillRule="evenodd"
+                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {simulation.response_count} Responses
                   </div>
                 </div>
               </CardContent>
               <Separator />
-              <CardFooter className="flex justify-between pt-4 flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleViewDetails(simulation)}
-                >
-                  View Details
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleViewResults(simulation)}
-                >
-                  View Results
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleViewPersonas(simulation)}
-                  className="w-full mt-2"
-                >
-                  View Personas
-                </Button>
+              <CardFooter className="pt-3 pb-3 px-3">
+                <div className="grid grid-cols-3 w-full divide-x overflow-hidden rounded-md">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewDetails(simulation)}
+                    className="text-xs h-8 border-0 rounded-none flex-1"
+                  >
+                    Details
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewResults(simulation)}
+                    className="text-xs h-8 border-0 rounded-none flex-1"
+                  >
+                    Results
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewPersonas(simulation)}
+                    className="text-xs h-8 border-0 rounded-none flex-1"
+                  >
+                    Personas
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           ))}
@@ -369,44 +393,48 @@ export default function ViewSimulationClient({
           {currentSimulation && (
             <>
               <DialogHeader>
-                <DialogTitle>{currentSimulation.simulation_name}</DialogTitle>
-                <DialogDescription>
-                  Created on {formatDate(currentSimulation.created_at)}
+                <DialogTitle className="text-lg font-semibold">
+                  {currentSimulation.simulation_name}
+                </DialogTitle>
+                <DialogDescription className="text-sm opacity-70">
+                  Simulation date: {formatDate(currentSimulation.created_at)}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="py-4 space-y-6">
                 {/* Basic Information */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <h3 className="text-base font-medium mb-3 text-slate-700">
                     Basic Information
                   </h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>Response Count:</div>
+                  <div className="grid grid-cols-2 gap-y-2 text-sm">
+                    <div className="text-slate-500">Response Count:</div>
                     <div>{currentSimulation.response_count}</div>
-                    <div>Last Updated:</div>
+                    <div className="text-slate-500">Last Updated:</div>
                     <div>{formatDate(currentSimulation.updated_at)}</div>
                   </div>
                 </div>
 
                 {/* Demographics */}
                 {currentSimulation.demographics && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Demographics</h3>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>Countries:</div>
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <h3 className="text-base font-medium mb-3 text-slate-700">
+                      Demographics
+                    </h3>
+                    <div className="grid grid-cols-2 gap-y-2 text-sm">
+                      <div className="text-slate-500">Countries:</div>
                       <div>
                         {currentSimulation.demographics.countries?.join(", ")}
                       </div>
-                      <div>Genders:</div>
+                      <div className="text-slate-500">Genders:</div>
                       <div>
                         {currentSimulation.demographics.genders?.join(", ")}
                       </div>
-                      <div>Age Ranges:</div>
+                      <div className="text-slate-500">Age Ranges:</div>
                       <div>
                         {currentSimulation.demographics.ageRanges?.join(", ")}
                       </div>
-                      <div>Household Incomes:</div>
+                      <div className="text-slate-500">Household Incomes:</div>
                       <div>
                         {currentSimulation.demographics.householdIncomes?.join(
                           ", "
@@ -419,19 +447,28 @@ export default function ViewSimulationClient({
                 {/* Questions */}
                 {currentSimulation.questions &&
                   currentSimulation.questions.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-2">Questions</h3>
-                      <div className="space-y-4">
+                    <div className="bg-slate-50 p-4 rounded-lg">
+                      <h3 className="text-base font-medium mb-3 text-slate-700">
+                        Questions
+                      </h3>
+                      <div className="space-y-3">
                         {currentSimulation.questions.map((q, index) => (
-                          <div key={index} className="p-3 border rounded-md">
-                            <div className="font-medium mb-2">
+                          <div
+                            key={index}
+                            className="bg-white p-3 border border-slate-200 rounded-md"
+                          >
+                            <div className="font-medium text-sm mb-2 text-slate-800">
                               Question {index + 1}: {q.question}
                             </div>
-                            <div className="ml-4">
-                              <div className="font-medium mb-1">Options:</div>
-                              <ul className="list-disc list-inside">
+                            <div className="ml-3">
+                              <div className="text-xs font-medium mb-1 text-slate-600">
+                                Options:
+                              </div>
+                              <ul className="list-disc list-inside text-sm">
                                 {q.options.map((option, optIndex) => (
-                                  <li key={optIndex}>{option}</li>
+                                  <li key={optIndex} className="text-slate-700">
+                                    {option}
+                                  </li>
                                 ))}
                               </ul>
                             </div>
@@ -440,12 +477,15 @@ export default function ViewSimulationClient({
                       </div>
                     </div>
                   )}
-
-                {/* Raw Formatted Data section removed */}
               </div>
 
               <DialogFooter>
-                <Button onClick={() => setIsDetailsOpen(false)}>Close</Button>
+                <Button
+                  onClick={() => setIsDetailsOpen(false)}
+                  className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-none"
+                >
+                  Close
+                </Button>
               </DialogFooter>
             </>
           )}
@@ -458,10 +498,10 @@ export default function ViewSimulationClient({
           {currentSimulation && (
             <>
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
                   Results: {currentSimulation.simulation_name}
                 </DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-sm opacity-70">
                   Response analysis by question and option
                 </DialogDescription>
               </DialogHeader>
@@ -469,39 +509,48 @@ export default function ViewSimulationClient({
               <div className="py-4 space-y-6">
                 {aggregatedResults.length > 0 ? (
                   aggregatedResults.map((result, index) => (
-                    <div key={index} className="p-4 border rounded-md">
-                      <h3 className="text-lg font-semibold mb-3">
-                        Question: {result.question}
+                    <div key={index} className="bg-slate-50 p-4 rounded-lg">
+                      <h3 className="text-base font-medium mb-3 text-slate-700">
+                        {result.question}
                       </h3>
 
-                      <div className="ml-4 mb-2">
-                        <h4 className="font-medium">Responses:</h4>
-                        <div className="space-y-1 mt-2">
+                      <div className="bg-white p-3 border border-slate-200 rounded-md">
+                        <div className="space-y-3">
                           {Object.entries(result.options).map(
                             ([option, data], optIndex) => (
                               <div
                                 key={optIndex}
-                                className="flex justify-between"
+                                className="flex items-center justify-between text-sm"
                               >
-                                <span>{option}:</span>
-                                <span>
-                                  {data.count} responses ({data.percentage}%)
-                                </span>
+                                <span className="font-medium">{option}</span>
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-32 bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div
+                                      className="bg-blue-500 h-full"
+                                      style={{ width: `${data.percentage}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-slate-500 min-w-[90px] text-right">
+                                    {data.count} ({data.percentage}%)
+                                  </span>
+                                </div>
                               </div>
                             )
                           )}
                         </div>
                       </div>
 
-                      <div className="text-sm text-muted-foreground mt-4">
+                      <div className="text-xs text-slate-500 mt-3 text-right">
                         {result.totalResponses} total responses
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col justify-center items-center h-40 space-y-4">
-                    <p>No results available for this simulation.</p>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="flex flex-col justify-center items-center h-40 p-6 bg-slate-50 rounded-lg space-y-4">
+                    <p className="text-slate-700">
+                      No results available for this simulation.
+                    </p>
+                    <p className="text-xs text-slate-500 text-center">
                       The simulation data has been saved to Supabase, but the
                       results data is not available. In production, this will
                       display actual persona responses from the API.
@@ -511,7 +560,12 @@ export default function ViewSimulationClient({
               </div>
 
               <DialogFooter>
-                <Button onClick={() => setIsResultsOpen(false)}>Close</Button>
+                <Button
+                  onClick={() => setIsResultsOpen(false)}
+                  className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-none"
+                >
+                  Close
+                </Button>
               </DialogFooter>
             </>
           )}
@@ -524,12 +578,12 @@ export default function ViewSimulationClient({
           {currentSimulation && (
             <>
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-lg font-semibold">
                   {selectedPersona
                     ? `Persona: ${selectedPersona.name}`
                     : `Personas: ${currentSimulation.simulation_name}`}
                 </DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-sm opacity-70">
                   {selectedPersona
                     ? "Detailed information about this persona"
                     : "List of all personas in this simulation"}
@@ -676,7 +730,12 @@ export default function ViewSimulationClient({
               </div>
 
               <DialogFooter>
-                <Button onClick={() => setIsPersonasOpen(false)}>Close</Button>
+                <Button
+                  onClick={() => setIsPersonasOpen(false)}
+                  className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-none"
+                >
+                  Close
+                </Button>
               </DialogFooter>
             </>
           )}
@@ -689,8 +748,10 @@ export default function ViewSimulationClient({
           {selectedPersona && (
             <>
               <DialogHeader>
-                <DialogTitle>Chat with {selectedPersona.name}</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-lg font-semibold">
+                  Chat with {selectedPersona.name}
+                </DialogTitle>
+                <DialogDescription className="text-sm opacity-70">
                   Have a conversation with this persona based on their
                   demographic profile
                 </DialogDescription>
@@ -734,7 +795,12 @@ export default function ViewSimulationClient({
               </div>
 
               <DialogFooter>
-                <Button onClick={() => setIsChatOpen(false)}>Close</Button>
+                <Button
+                  onClick={() => setIsChatOpen(false)}
+                  className="bg-slate-100 text-slate-800 hover:bg-slate-200 border-none"
+                >
+                  Close
+                </Button>
               </DialogFooter>
             </>
           )}
