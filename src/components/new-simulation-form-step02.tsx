@@ -119,12 +119,14 @@ export function NewSimulationFormStep02({
       <div className="space-y-6">
         <div>
           <p className="text-sm text-muted-foreground">Step 02</p>
-          <h2 className="text-2xl font-heading font-semibold mt-1">
+          <h2 className="text-2xl font-heading font-semibold mt-1 text-black">
             Choose demographics
           </h2>
         </div>
         <div className="space-y-2">
-          <p className="font-medium">How many responses do you want?</p>
+          <p className="font-medium text-black">
+            How many responses do you want?
+          </p>
           <div className="flex items-center gap-4">
             <Input
               type="number"
@@ -150,7 +152,7 @@ export function NewSimulationFormStep02({
           </div>
         </div>
         <div className="space-y-2">
-          <p className="font-medium">
+          <p className="font-medium text-black">
             What type of filtering criteria do you want?
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -197,7 +199,7 @@ export function NewSimulationFormStep02({
             Previous
           </Button>
           <Button
-            className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
+            className="bg-black text-white hover:bg-black/90"
             onClick={handleNext}
           >
             Next

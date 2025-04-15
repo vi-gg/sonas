@@ -199,13 +199,15 @@ export default function NewSimulationClient({
   // Progress indicator
   const renderProgressIndicator = () => {
     return (
-      <div className="flex w-full max-w-md mx-auto mb-6">
+      <div className="flex w-[768px] mx-auto mb-6">
         {[1, 2, 3, 4].map((step) => (
           <div key={step} className="flex-1 px-1">
+            <div className="text-xs text-center mb-1 text-gray-700">
+              Step {step}
+            </div>
             <div
-              className={`h-2 rounded-full ${step <= currentStep ? "bg-blue-600" : "bg-gray-200"}`}
+              className={`h-0.5 ${step <= currentStep ? "bg-black" : "bg-gray-200"}`}
             />
-            <div className="text-xs text-center mt-1">Step {step}</div>
           </div>
         ))}
       </div>
@@ -358,7 +360,7 @@ export default function NewSimulationClient({
               simulation completes.
             </p>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-600 animate-pulse"></div>
+              <div className="h-full bg-black animate-pulse"></div>
             </div>
           </div>
         </div>

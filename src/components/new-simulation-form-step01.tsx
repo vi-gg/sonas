@@ -18,7 +18,9 @@ export function NewSimulationFormStep01({
   formData = { simulationName: "My New Simulation" },
   updateFormData,
 }: NewSimulationFormStep01Props) {
-  const [simulationName, setSimulationName] = useState(formData.simulationName || "");
+  const [simulationName, setSimulationName] = useState(
+    formData.simulationName || ""
+  );
 
   // Update parent form data when simulation name changes
   useEffect(() => {
@@ -38,14 +40,15 @@ export function NewSimulationFormStep01({
   };
 
   return (
-    <CardContent className={cn("p-6 border rounded-2xl w-[768px]", className)}>
+    <CardContent className={cn("p-6 border rounded-lg w-[768px]", className)}>
       <div className="space-y-6">
         <div>
-          <p className="text-sm text-muted-foreground">Step 01</p>
-          <h1 className="text-2xl font-heading font-semibold mt-1">Create simulation</h1>
+          <h1 className="text-2xl font-heading font-semibold text-black">
+            Create simulation
+          </h1>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="simulation-name" className="font-medium">
+          <Label htmlFor="simulation-name" className="font-medium text-black">
             Simulation Name
           </Label>
           <Input
@@ -60,7 +63,10 @@ export function NewSimulationFormStep01({
           <Button variant="outline" disabled>
             Previous
           </Button>
-          <Button className="bg-black text-white hover:bg-black/90" onClick={handleNext}>
+          <Button
+            className="bg-black text-white hover:bg-black/90"
+            onClick={handleNext}
+          >
             Next
           </Button>
         </div>

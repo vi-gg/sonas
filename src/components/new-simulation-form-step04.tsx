@@ -99,7 +99,7 @@ export function NewSimulationFormStep04({
       <div className="space-y-6">
         <div>
           <p className="text-sm text-muted-foreground">Step 04</p>
-          <h2 className="text-2xl font-bold font-heading mt-1">
+          <h2 className="text-2xl font-bold font-heading mt-1 text-black">
             Review and run your simulation
           </h2>
         </div>
@@ -268,7 +268,7 @@ export function NewSimulationFormStep04({
             <p className="text-sm text-center text-gray-500">
               When you run the simulation, we'll generate responses based on the
               demographics and questions you've defined. Please check the view
-              simulations in someme time, Around 5 minutes.
+              simulations in 5 minutes.
             </p>
           </div>
         </div>
@@ -282,7 +282,7 @@ export function NewSimulationFormStep04({
             Previous
           </Button>
           <Button
-            className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
+            className="bg-black text-white hover:bg-black/90"
             onClick={handleRunSimulation}
             disabled={isLoading || !hasValidQuestions(formData)}
           >

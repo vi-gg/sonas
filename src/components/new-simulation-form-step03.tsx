@@ -114,7 +114,7 @@ export function NewSimulationFormStep03({
       <div className="space-y-6">
         <div>
           <p className="text-sm text-muted-foreground">Step 03</p>
-          <h2 className="text-2xl font-bold font-heading mt-1">
+          <h2 className="text-2xl font-bold font-heading mt-1 text-black">
             Add questions which you want your personas to answer
           </h2>
         </div>
@@ -124,7 +124,7 @@ export function NewSimulationFormStep03({
             <Button
               variant="default"
               onClick={handleAddQuestionClick}
-              className="w-full bg-[#0F172A] text-white hover:bg-[#1E293B] flex items-center justify-center py-5"
+              className="w-full bg-black text-white hover:bg-black/90 flex items-center justify-center py-5"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add a question
@@ -136,7 +136,7 @@ export function NewSimulationFormStep03({
               key={question.id}
               variant="outline"
               onClick={() => handleEditQuestionClick(question)}
-              className="w-full bg-[#E5EAF2] text-[#0F172A] hover:bg-[#D1D9E6] flex items-center justify-center py-5"
+              className="w-full bg-[#E5EAF2] text-black hover:bg-[#D1D9E6] flex items-center justify-center py-5"
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit question {String(index + 1).padStart(2, "0")}
@@ -153,7 +153,7 @@ export function NewSimulationFormStep03({
             Previous
           </Button>
           <Button
-            className="bg-[#0F172A] text-white hover:bg-[#1E293B]"
+            className="bg-black text-white hover:bg-black/90"
             onClick={handleNext}
           >
             Next
