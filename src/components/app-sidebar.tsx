@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { signOut } from "@/app/auth/actions";
 import {
   SidebarProvider,
   Sidebar,
@@ -236,12 +237,14 @@ export function AppSidebar({
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="/logout">
-                  <LogOut />
-                  <span>Log out</span>
-                </a>
-              </SidebarMenuButton>
+              <form action={signOut}>
+                <SidebarMenuButton asChild>
+                  <button type="submit">
+                    <LogOut />
+                    <span>Log out</span>
+                  </button>
+                </SidebarMenuButton>
+              </form>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
