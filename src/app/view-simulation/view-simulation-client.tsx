@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
+import { LoaderCircle } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   Card,
@@ -280,7 +281,7 @@ export default function ViewSimulationClient({
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <p>Loading simulations...</p>
+          <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : error ? (
         <div className="flex justify-center items-center h-64">
@@ -388,22 +389,21 @@ export default function ViewSimulationClient({
       )}
 
       {/* Simulation Details Dialog */}
-      {/* Global style for all dialog close buttons */}
+      {/* Remove X (close) buttons from all dialogs */}
       <style jsx global>{`
-        [data-state="open"] [data-radix-dialog-close] {
-          position: absolute !important;
-          right: 6px !important;
-          top: 6px !important;
-          background: white !important;
-          border-radius: 50% !important;
-          height: 24px !important;
-          width: 24px !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          opacity: 0.9 !important;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-          z-index: 100 !important;
+        /* Target specific X button elements by exact class and properties */
+        button.absolute.right-4.top-4,
+        button[type="button"].absolute.right-4.top-4,
+        .DialogContent button[type="button"][class*="absolute"],
+        [data-radix-dialog-close],
+        button[aria-label="Close"],
+        button:has(.lucide-x),
+        button:has(svg[stroke="currentColor"]) {
+          display: none !important;
+          opacity: 0 !important;
+          visibility: hidden !important;
+          pointer-events: none !important;
+          transform: scale(0) !important;
         }
       `}</style>
 
