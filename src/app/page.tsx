@@ -133,7 +133,7 @@ export default function HomePage() {
             </div>
           )}
 
-          <div className="navbar-line w-full h-[1px] bg-white absolute left-0 bottom-0"></div>
+          <div className="navbar-line w-full h-[0px] bg-white absolute left-0 bottom-0"></div>
         </div>
         {/* SECTION 01 */}
         <section
@@ -141,7 +141,7 @@ export default function HomePage() {
           className="home-hero bg-[#0055FF] w-full h-screen relative pt-16"
         >
           <div className="absolute top-[15svh] w-full px-4 md:px-6 z-20">
-            <p className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl text-white leading-tight md:leading-tighter tracking-tighter">
+            <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl max-w-6xl text-white leading-tight md:leading-tighter tracking-tighter">
               Shaping the Science of predictive discovery for the future
             </p>
           </div>
