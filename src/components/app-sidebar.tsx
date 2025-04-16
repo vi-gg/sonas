@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { signOut } from "@/app/auth/actions";
 import {
   SidebarProvider,
@@ -237,14 +238,7 @@ export function AppSidebar({
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <form action={signOut}>
-                <SidebarMenuButton asChild>
-                  <button type="submit">
-                    <LogOut />
-                    <span>Log out</span>
-                  </button>
-                </SidebarMenuButton>
-              </form>
+              <LogoutButton />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
@@ -271,5 +265,38 @@ export function AppSidebar({
         <div className="container mx-auto py-8">{children}</div>
       </SidebarInset>
     </SidebarProvider>
+  );
+}
+
+// Separate component for logout functionality with client-side navigation
+function LogoutButton() {
+  const router = useRouter();
+
+  const handleLogout = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      // Call the server action to sign out
+      await signOut();
+
+      // Force client-side navigation to home page
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Ensure navigation happens even if there's an error
+      router.push("/");
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogout} className="w-full">
+      <button
+        type="submit"
+        className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-sidebar-accent"
+      >
+        <LogOut className="h-4 w-4" />
+        <span>Log out</span>
+      </button>
+    </form>
   );
 }

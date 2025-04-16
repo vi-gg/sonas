@@ -6,28 +6,64 @@ export default function LoginPage() {
     <>
       <div className="w-screen h-screen flex">
         <div className="w-full h-full p-4">
-          <div className="w-full h-full rounded-2xl bg-gray-200" />
+          <div className="w-full h-full bg-gray-200" />
         </div>
         <div className="w-full h-full flex items-center gap-0 justify-center">
-          <form className="border rounded-lg p-8 w-[22rem]" action={login}>
-            <div className="flex flex-col items-center gap-2 text-center mb-4">
-              <h1 className="text-2xl font-bold">Login</h1>
+          <form
+            className="border border-gray-300 p-8 w-[26rem] shadow-none"
+            action={login}
+          >
+            {/* SONAS Logo */}
+            <div className="flex justify-center mb-8">
+              <div
+                className="border border-gray-200 flex items-center justify-center"
+                style={{
+                  aspectRatio: "1 / 1",
+                  width: "120px",
+                  height: "120px",
+                  padding: "0.75rem",
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  <div className="logo-dot w-4 h-4 bg-black rounded-full"></div>
+                  <div className="logo text-2xl text-black tracking-tight uppercase font-medium">
+                    SONAS
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="grid gap-5">
+
+            <div className="flex flex-col items-center gap-2 text-center mb-8">
+              <h1 className="text-2xl font-bold tracking-tight">
+                Login to your account
+              </h1>
+            </div>
+
+            <div className="grid gap-6">
               <div className="grid gap-2">
-                <label htmlFor="email">Email</label>
+                <label
+                  htmlFor="email"
+                  className="font-medium text-sm text-gray-700"
+                >
+                  Email address
+                </label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   required
                   placeholder="you@example.com"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full border border-gray-300 bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:border-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <label htmlFor="password">Password</label>
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="font-medium text-sm text-gray-700"
+                  >
+                    Password
+                  </label>
                 </div>
                 <input
                   id="password"
@@ -35,18 +71,15 @@ export default function LoginPage() {
                   type="password"
                   required
                   placeholder="******"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full border border-gray-300 bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:border-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
                 />
               </div>
               <button
                 type="submit"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-4 py-2 w-full transition-colors mt-2"
               >
-                Login
+                Continue
               </button>
-              <label htmlFor="email" className="text-xs">
-                Forgot password? Rest here
-              </label>
             </div>
           </form>
         </div>

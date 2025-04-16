@@ -8,3 +8,10 @@ src/.DS_Store
 /.next/cache/webpack
 *.gz
 .next
+.next/app-build-manifest.json
+.next/build-manifest.json
+.next/app-build-manifest.json
+.next/build-manifest.json
+.next/app-build-manifest.json
+.next/cache/webpack/client-development-fallback/0.pack.gz
+.next/app-build-manifest.json
