@@ -99,9 +99,139 @@ export default function ViewSimulationClient({
   const [selectedPersona, setSelectedPersona] = useState<any | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
+  // Helper function to extract and aggregate psychographics from simulation results
+  const extractPsychographicsFromResults = (results: PersonaResponse[]) => {
+    const uniqueValues = {
+      personality: new Set<string>(),
+      attitudes: new Set<string>(),
+      opinions: new Set<string>(),
+      socialClass: new Set<string>(),
+      lifestyle: new Set<string>(),
+      interests: new Set<string>(),
+    };
+
+    // Process each result's backstory to extract psychographics
+    results.forEach((response) => {
+      const backstory = response.persona_backstory;
+
+      // Extract psychographics using regex patterns
+      const personalityMatch = backstory.match(/personality\s*:\s*([^,]+)/i);
+      const attitudesMatch = backstory.match(/attitudes\s*:\s*([^,]+)/i);
+      const opinionsMatch = backstory.match(/opinions\s*:\s*([^,]+)/i);
+      const socialClassMatch = backstory.match(/social_class\s*:\s*([^,]+)/i);
+      const lifestyleMatch = backstory.match(/lifestyle\s*:\s*([^,]+)/i);
+      const interestsMatch = backstory.match(/interests\s*:\s*(\[[^\]]+\])/i);
+
+      // Add unique values to sets
+      if (personalityMatch && personalityMatch[1].trim()) {
+        uniqueValues.personality.add(personalityMatch[1].trim());
+      }
+      if (attitudesMatch && attitudesMatch[1].trim()) {
+        uniqueValues.attitudes.add(attitudesMatch[1].trim());
+      }
+      if (opinionsMatch && opinionsMatch[1].trim()) {
+        uniqueValues.opinions.add(opinionsMatch[1].trim());
+      }
+      if (socialClassMatch && socialClassMatch[1].trim()) {
+        uniqueValues.socialClass.add(socialClassMatch[1].trim());
+      }
+      if (lifestyleMatch && lifestyleMatch[1].trim()) {
+        uniqueValues.lifestyle.add(lifestyleMatch[1].trim());
+      }
+
+      // Handle interests array specially
+      if (interestsMatch && interestsMatch[1]) {
+        try {
+          // Try to parse the array notation
+          const interestsStr = interestsMatch[1].replace(/'/g, '"');
+          const interests = JSON.parse(interestsStr);
+          if (Array.isArray(interests)) {
+            interests.forEach((interest) => {
+              if (interest && typeof interest === "string") {
+                uniqueValues.interests.add(interest.trim());
+              }
+            });
+          }
+        } catch (e) {
+          // If parsing fails, try to extract manually
+          const interestsStr = interestsMatch[1];
+          const interests = interestsStr
+            .replace(/[\[\]']/g, "")
+            .split(",")
+            .map((item) => item.trim());
+
+          interests.forEach((interest) => {
+            if (interest) {
+              uniqueValues.interests.add(interest);
+            }
+          });
+        }
+      }
+    });
+
+    // Convert Sets to arrays
+    return {
+      personality: Array.from(uniqueValues.personality),
+      attitudes: Array.from(uniqueValues.attitudes),
+      opinions: Array.from(uniqueValues.opinions),
+      socialClass: Array.from(uniqueValues.socialClass),
+      lifestyle: Array.from(uniqueValues.lifestyle),
+      interests: Array.from(uniqueValues.interests),
+    };
+  };
+
   // Handler for View Details button
   const handleViewDetails = (simulation: Simulation) => {
-    setCurrentSimulation(simulation);
+    let psychographics = simulation.psychographics || {
+      personality: [],
+      attitudes: [],
+      opinions: [],
+      socialClass: [],
+      lifestyle: [],
+      interests: [],
+    };
+
+    // If there are results, extract psychographics from them
+    if (simulation.results && simulation.results.length > 0) {
+      const extractedPsychographics = extractPsychographicsFromResults(
+        simulation.results
+      );
+
+      // Merge any existing psychographics with extracted data
+      psychographics = {
+        personality:
+          extractedPsychographics.personality.length > 0
+            ? extractedPsychographics.personality
+            : psychographics.personality,
+        attitudes:
+          extractedPsychographics.attitudes.length > 0
+            ? extractedPsychographics.attitudes
+            : psychographics.attitudes,
+        opinions:
+          extractedPsychographics.opinions.length > 0
+            ? extractedPsychographics.opinions
+            : psychographics.opinions,
+        socialClass:
+          extractedPsychographics.socialClass.length > 0
+            ? extractedPsychographics.socialClass
+            : psychographics.socialClass,
+        lifestyle:
+          extractedPsychographics.lifestyle.length > 0
+            ? extractedPsychographics.lifestyle
+            : psychographics.lifestyle,
+        interests:
+          extractedPsychographics.interests.length > 0
+            ? extractedPsychographics.interests
+            : psychographics.interests,
+      };
+    }
+
+    const simulationWithPsychographics = {
+      ...simulation,
+      psychographics,
+    };
+
+    setCurrentSimulation(simulationWithPsychographics);
     setIsDetailsOpen(true);
   };
 
