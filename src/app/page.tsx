@@ -1,70 +1,224 @@
 "use client";
 
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import SplitType from "split-type";
+import Lenis from "lenis";
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [count, setCount] = useState(0);
   // Animation steps: 0: counting, 1: scaling blue bg, 2: fading out, 3: finished
-  const [animationStep, setAnimationStep] = useState(0);
+  const [animationStep, setAnimationStep] = useState(0); // 0: counting, 1: scaling blue bg, 2: fading out, 3: finished
 
   const loadingContainerRef = useRef<HTMLDivElement>(null);
   const blueBgRef = useRef<HTMLDivElement>(null);
-  const numberRef = useRef<HTMLDivElement>(null); // Ref for the number
+  const numberRef = useRef<HTMLDivElement>(null);
+  const heroHeadingRef = useRef<HTMLParagraphElement>(null); // Ref for the hero heading
+  const heroBodyRef = useRef<HTMLParagraphElement>(null); // Ref for the hero body copy
+  const heroImageRef = useRef<HTMLDivElement>(null); // Ref for the hero image container
+  const heroButtonRef = useRef<HTMLDivElement>(null); // Ref for the hero button container
 
-  // Effect for counting
+  // Master timeline for all animations
+  const masterTimeline = useRef<gsap.core.Timeline | null>(null);
+
+  // Initialize smooth scrolling
   useEffect(() => {
+    // Initialize smooth scrolling with Lenis
+    // Using a simpler implementation to avoid TypeScript errors
+    const lenis = new Lenis();
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      // Cleanup
+      lenis.destroy();
+    };
+  }, []);
+
+  // Effect for counting and initializing the master timeline
+  useEffect(() => {
+    // Initialize the master timeline once
+    if (!masterTimeline.current) {
+      masterTimeline.current = gsap.timeline({
+        paused: true,
+        onComplete: () => {
+          // Set animation step to finished when the timeline completes
+          setAnimationStep(3);
+        },
+      });
+    }
+
     if (animationStep === 0) {
       if (count < 100) {
         const timer = setTimeout(() => setCount(count + 1), 20); // Faster timing (2000ms / 100 steps)
         return () => clearTimeout(timer);
       } else {
-        // When count reaches 100, trigger the GSAP animation
+        // When count reaches 100, start the GSAP animation timeline
+        if (masterTimeline.current) {
+          masterTimeline.current.play();
+        }
         setAnimationStep(1);
       }
     }
   }, [count, animationStep]);
 
-  // Effect for GSAP animations
+  // Setup the complete animation sequence
   useEffect(() => {
     if (
-      animationStep === 1 &&
+      masterTimeline.current &&
       blueBgRef.current &&
-      numberRef.current && // Add numberRef check
-      loadingContainerRef.current
+      numberRef.current &&
+      loadingContainerRef.current &&
+      heroHeadingRef.current &&
+      heroBodyRef.current &&
+      heroImageRef.current &&
+      heroButtonRef.current
     ) {
-      // Animate the number fading out
-      gsap.to(numberRef.current, {
-        opacity: 0,
-        duration: 0.5, // Faster fade for the number
-        ease: "power1.inOut",
+      // Clear any existing animations
+      masterTimeline.current.clear();
+
+      // Split heading into lines
+      const headingText = new SplitType(heroHeadingRef.current, {
+        types: "lines",
+        tagName: "span",
       });
 
-      // Animate the blue background expanding
-      gsap.to(blueBgRef.current, {
-        width: "100vw",
-        height: "100vh",
-        duration: 1.5, // Adjust duration as needed
-        ease: "expo.inOut",
-        onComplete: () => {
-          setAnimationStep(2); // Move to fade out step
-        },
+      // Split body copy into lines
+      const bodyText = new SplitType(heroBodyRef.current, {
+        types: "lines",
+        tagName: "span",
       });
-    } else if (animationStep === 2 && loadingContainerRef.current) {
-      // Animate the entire loading container fading out
-      gsap.to(loadingContainerRef.current, {
+
+      // Add classes to each line for proper overflow handling
+      if (headingText.lines) {
+        headingText.lines.forEach((line) => {
+          gsap.set(line, { overflow: "hidden", display: "block" });
+          // Wrap the text content in a span for animation
+          const content = line.innerHTML;
+          line.innerHTML = `<span style="display:block">${content}</span>`;
+        });
+      }
+
+      if (bodyText.lines) {
+        bodyText.lines.forEach((line) => {
+          gsap.set(line, { overflow: "hidden", display: "block" });
+          // Wrap the text content in a span for animation
+          const content = line.innerHTML;
+          line.innerHTML = `<span style="display:block">${content}</span>`;
+        });
+      }
+
+      // Get the inner spans for animation
+      const headingInnerSpans = headingText.lines
+        ? headingText.lines.map((line) => line.querySelector("span"))
+        : [];
+
+      const bodyInnerSpans = bodyText.lines
+        ? bodyText.lines.map((line) => line.querySelector("span"))
+        : [];
+
+      // Set initial state for all elements
+      gsap.set(headingInnerSpans, {
+        y: 100,
         opacity: 0,
-        duration: 1, // Fade out duration
-        ease: "power1.inOut",
-        onComplete: () => {
-          setAnimationStep(3); // Animation finished
-        },
       });
+
+      gsap.set(bodyInnerSpans, {
+        y: 100,
+        opacity: 0,
+      });
+
+      // Set initial state for image and button
+      gsap.set(heroImageRef.current, {
+        y: 50,
+        opacity: 0,
+      });
+
+      gsap.set(heroButtonRef.current, {
+        y: 30,
+        opacity: 0,
+      });
+
+      // Build the complete animation sequence
+      masterTimeline.current
+        // 1. Fade out the counter
+        .to(numberRef.current, {
+          opacity: 0,
+          duration: 0.5,
+          ease: "power1.inOut",
+        })
+        // 2. Expand the blue background
+        .to(
+          blueBgRef.current,
+          {
+            width: "100vw",
+            height: "100vh",
+            duration: 2.2,
+            ease: "expo.inOut",
+          },
+          "<" // Start at the same time as the previous animation
+        )
+        // 3. Fade out the loading container
+        .to(loadingContainerRef.current, {
+          opacity: 0,
+          duration: 1,
+          ease: "power1.inOut",
+        })
+        // 4. Animate all elements with a coordinated sequence
+        .to(
+          headingInnerSpans,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "expo.out",
+            stagger: 0.08, // Slightly faster stagger for smoother flow
+          },
+          "-=0.5" // Start slightly before the loading container fades out completely
+        )
+        .to(
+          bodyInnerSpans,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "expo.out",
+            stagger: 0.05, // Faster stagger for body text
+          },
+          "-=0.6" // More overlap with heading animation
+        )
+        .to(
+          heroImageRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            ease: "expo.out",
+          },
+          "-=0.8" // Start while text is still animating
+        )
+        .to(
+          heroButtonRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "expo.out",
+          },
+          "-=0.9" // Start while image is still animating
+        );
     }
-  }, [animationStep]);
+  }, []);
 
   // Format count to always have two digits (e.g., 01, 09, 10)
   const formattedCount = count.toString().padStart(2, "0");
@@ -241,18 +395,28 @@ export default function HomePage() {
           className="home-hero bg-[#0055FF] w-full h-screen relative pt-16"
         >
           <div className="absolute top-[15svh] w-full px-4 md:px-6 z-20">
-            <p className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl max-w-6xl text-white leading-tight md:leading-tighter tracking-tighter">
-              Shaping the Science of predictive discovery for the future
-            </p>
+            <div className="overflow-hidden">
+              <p
+                ref={heroHeadingRef}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl max-w-6xl text-white leading-tight md:leading-tighter tracking-tighter"
+              >
+                Shaping the Science of predictive discovery for the future
+              </p>
+            </div>
           </div>
           <div className="absolute bottom-[25svh] w-full px-4 md:px-8 z-20">
-            <p className="text-sm md:text-base max-w-full md:max-w-md text-white">
-              We're building powerful simulation engines that model human
-              behavior at scale. Sonas creates digital worlds where decisions
-              and outcomes unfold with remarkable accuracy.
-            </p>
+            <div className="overflow-hidden">
+              <p
+                ref={heroBodyRef}
+                className="text-sm md:text-base max-w-full md:max-w-md text-white"
+              >
+                We're building powerful simulation engines that model human
+                behavior at scale. Sonas creates digital worlds where decisions
+                and outcomes unfold with remarkable accuracy.
+              </p>
+            </div>
           </div>
-          <div className="w-full absolute left-0 bottom-0">
+          <div ref={heroImageRef} className="w-full absolute left-0 bottom-0">
             <Image
               className="m-auto z-10 w-full max-w-[350px] md:max-w-[450px] lg:max-w-[550px] h-auto"
               src="/images/home-hero-image.png"
@@ -260,7 +424,10 @@ export default function HomePage() {
               height={550}
               alt="Hero visualization"
             />
-            <div className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8">
+            <div
+              ref={heroButtonRef}
+              className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8"
+            >
               <Link
                 className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base hover:bg-gray-800 transition-colors"
                 href="/signup"
