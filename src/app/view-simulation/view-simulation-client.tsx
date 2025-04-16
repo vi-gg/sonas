@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useChat, type Message } from "@ai-sdk/react";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 import { LoaderCircle } from "lucide-react";
@@ -1208,7 +1209,14 @@ export default function ViewSimulationClient({
       </Dialog>
 
       {/* Chat with Persona Dialog */}
-      <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+      <Dialog
+        open={isChatOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsChatOpen(false);
+          }
+        }}
+      >
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           {selectedPersona && (
             <>
@@ -1256,130 +1264,217 @@ export default function ViewSimulationClient({
                 </div>
               </DialogHeader>
 
-              <div className="py-6 px-6 space-y-4">
-                {/* Chat history */}
-                <div className="border border-slate-200 rounded-md p-4 h-[320px] overflow-y-auto flex flex-col space-y-4 bg-slate-50 shadow-inner">
-                  {/* Example message from persona */}
-                  <div className="flex items-start space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                      {selectedPersona.name.charAt(0)}
-                    </div>
-                    <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 max-w-[85%] relative">
-                      <div className="absolute left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200 transform rotate-45"></div>
-                      <p className="text-sm text-slate-700 relative z-10">
-                        Hello! I'm {selectedPersona.name}, a{" "}
-                        {selectedPersona.demographics.age}-year-old{" "}
-                        {selectedPersona.demographics.gender} working in the{" "}
-                        {selectedPersona.demographics.industry} industry. How
-                        can I help you?
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Example user message */}
-                  <div className="flex items-start space-x-3 justify-end">
-                    <div className="bg-purple-100 p-3 rounded-lg max-w-[85%] relative">
-                      <div className="absolute right-[-8px] top-3 w-4 h-4 bg-purple-100 transform rotate-45"></div>
-                      <p className="text-sm text-purple-800 relative z-10">
-                        Can you tell me about your typical shopping habits?
-                      </p>
-                    </div>
-                    <div className="h-8 w-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                      U
-                    </div>
-                  </div>
-
-                  {/* Second example message from persona */}
-                  <div className="flex items-start space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                      {selectedPersona.name.charAt(0)}
-                    </div>
-                    <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 max-w-[85%] relative">
-                      <div className="absolute left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200 transform rotate-45"></div>
-                      <p className="text-sm text-slate-700 relative z-10">
-                        I typically shop online for convenience. I prefer brands
-                        that offer quality products with good value. I'm willing
-                        to spend more on items that will last longer, especially
-                        electronics and clothing. I usually research products
-                        thoroughly before making purchases over $100.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Chat input */}
-                <div className="flex items-center space-x-3">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      placeholder="Type your message here..."
-                      className="w-full p-3 pr-10 border border-slate-300 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-                    />
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white px-4 shadow-sm">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 mr-1"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Send
-                  </Button>
-                </div>
-
-                <div className="bg-slate-50 p-3 rounded-md text-center text-xs text-slate-500 border border-slate-200">
-                  <p className="flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 mr-1 text-slate-400"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    This chat is a demonstration of the persona concept. In
-                    production, it would connect to a large language model to
-                    simulate conversation.
-                  </p>
-                </div>
-              </div>
-
-              <DialogFooter className="px-6 pb-6">
-                <Button
-                  onClick={() => setIsChatOpen(false)}
-                  className="bg-slate-800 text-white hover:bg-slate-700 border-none shadow-sm"
-                >
-                  Close
-                </Button>
-              </DialogFooter>
+              <ChatWithPersona
+                persona={selectedPersona}
+                onClose={() => setIsChatOpen(false)}
+              />
             </>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* ChatWithPersona Component - Extracted for better organization */}
+      {/* This component handles the AI-powered chat with personas */}
     </AppSidebar>
+  );
+}
+
+// ChatWithPersona Component
+interface ChatWithPersonaProps {
+  persona: any;
+  onClose: () => void;
+}
+
+function ChatWithPersona({ persona, onClose }: ChatWithPersonaProps) {
+  // Generate a unique chat ID based on the persona name
+  const chatId = `persona-chat-${persona.name.toLowerCase().replace(/\s+/g, "-")}`;
+
+  // Initialize chat functionality with the AI SDK
+  const { messages, input, setInput, append, isLoading } = useChat({
+    id: chatId,
+    api: "/api/chat",
+    initialMessages: [],
+    body: {
+      persona: persona,
+    },
+    // Load chat history from localStorage if it exists
+    onFinish: (message) => {
+      const chatHistory = [...messages, message];
+      localStorage.setItem(chatId, JSON.stringify(chatHistory));
+    },
+  });
+
+  // Message container ref for auto-scrolling
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+
+  // Load chat history from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem(chatId);
+      if (savedMessages) {
+        const parsedMessages = JSON.parse(savedMessages) as Message[];
+        // If there are saved messages and our current messages array is empty,
+        // initialize with the saved messages
+        if (parsedMessages.length > 0 && messages.length === 0) {
+          parsedMessages.forEach((msg) => {
+            append(msg);
+          });
+        }
+      } else if (messages.length === 0) {
+        // Send an initial greeting message if no saved messages and no current messages
+        append({
+          content: `Hello! I'm ${persona.name}, a ${persona.demographics.age}-year-old ${persona.demographics.gender} from ${persona.demographics.country} working in the ${persona.demographics.industry} industry. How can I help you today?`,
+          role: "assistant",
+        });
+      }
+    } catch (error) {
+      console.error("Error loading chat history:", error);
+    }
+  }, [chatId]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Handle sending messages
+  const handleSendMessage = useCallback(() => {
+    if (input.trim() && !isLoading) {
+      append({ content: input, role: "user" });
+      setInput("");
+    }
+  }, [input, isLoading, append, setInput]);
+
+  // Handle Enter key press to send message
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  return (
+    <div className="py-6 px-6 space-y-4">
+      {/* Chat history */}
+      <div
+        ref={messageContainerRef}
+        className="border border-slate-200 rounded-md p-4 h-[320px] overflow-y-auto flex flex-col space-y-4 bg-slate-50 shadow-inner"
+      >
+        {messages.map((message, idx) => (
+          <div
+            key={idx}
+            className={`flex items-start space-x-3 ${
+              message.role === "user" ? "justify-end" : ""
+            }`}
+          >
+            {message.role !== "user" && (
+              <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                {persona.name.charAt(0)}
+              </div>
+            )}
+
+            <div
+              className={`p-3 rounded-lg max-w-[85%] relative ${
+                message.role === "user"
+                  ? "bg-purple-100 text-purple-800"
+                  : "bg-white shadow-sm border border-slate-200 text-slate-700"
+              }`}
+            >
+              <div
+                className={`absolute ${
+                  message.role === "user"
+                    ? "right-[-8px] top-3 w-4 h-4 bg-purple-100"
+                    : "left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200"
+                } transform rotate-45`}
+              ></div>
+              <p className={`text-sm relative z-10`}>{message.content}</p>
+            </div>
+
+            {message.role === "user" && (
+              <div className="h-8 w-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                U
+              </div>
+            )}
+          </div>
+        ))}
+        {isLoading && (
+          <div className="flex items-start space-x-3">
+            <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
+              {persona.name.charAt(0)}
+            </div>
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 max-w-[85%] relative">
+              <div className="absolute left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200 transform rotate-45"></div>
+              <p className="text-sm text-slate-700 relative z-10 flex items-center">
+                <span className="flex space-x-1">
+                  <span className="animate-bounce">.</span>
+                  <span className="animate-bounce delay-75">.</span>
+                  <span className="animate-bounce delay-150">.</span>
+                </span>
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Chat input */}
+      <div className="flex items-center space-x-3">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message here..."
+            className="w-full p-3 pr-10 border border-slate-300 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+            disabled={isLoading}
+          />
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
+        <Button
+          onClick={handleSendMessage}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 shadow-sm"
+          disabled={isLoading || !input.trim()}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 mr-1"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Send
+        </Button>
+      </div>
+
+      <DialogFooter className="px-0 pb-0">
+        <Button
+          onClick={onClose}
+          className="bg-slate-800 text-white hover:bg-slate-700 border-none shadow-sm"
+        >
+          Close
+        </Button>
+      </DialogFooter>
+    </div>
   );
 }
