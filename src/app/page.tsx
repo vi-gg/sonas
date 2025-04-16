@@ -676,7 +676,7 @@ export default function HomePage() {
               >
                 Start Now
               </Link>
-              <Link
+              {/* <Link
                 className="py-3 px-8 md:px-10 border border-white text-white uppercase text-center text-sm md:text-base cta-button secondary-cta"
                 href="/dashboard"
                 ref={(el) => {
@@ -684,7 +684,7 @@ export default function HomePage() {
                 }}
               >
                 Learn More
-              </Link>
+              </Link> */}
             </div>
           </div>
         </section>
