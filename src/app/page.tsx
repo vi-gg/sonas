@@ -2,15 +2,115 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { gsap } from "gsap";
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [count, setCount] = useState(0);
+  // Animation steps: 0: counting, 1: scaling blue bg, 2: fading out, 3: finished
+  const [animationStep, setAnimationStep] = useState(0);
+
+  const loadingContainerRef = useRef<HTMLDivElement>(null);
+  const blueBgRef = useRef<HTMLDivElement>(null);
+  const numberRef = useRef<HTMLDivElement>(null); // Ref for the number
+
+  // Effect for counting
+  useEffect(() => {
+    if (animationStep === 0) {
+      if (count < 100) {
+        const timer = setTimeout(() => setCount(count + 1), 20); // Faster timing (2000ms / 100 steps)
+        return () => clearTimeout(timer);
+      } else {
+        // When count reaches 100, trigger the GSAP animation
+        setAnimationStep(1);
+      }
+    }
+  }, [count, animationStep]);
+
+  // Effect for GSAP animations
+  useEffect(() => {
+    if (
+      animationStep === 1 &&
+      blueBgRef.current &&
+      numberRef.current && // Add numberRef check
+      loadingContainerRef.current
+    ) {
+      // Animate the number fading out
+      gsap.to(numberRef.current, {
+        opacity: 0,
+        duration: 0.5, // Faster fade for the number
+        ease: "power1.inOut",
+      });
+
+      // Animate the blue background expanding
+      gsap.to(blueBgRef.current, {
+        width: "100vw",
+        height: "100vh",
+        duration: 1.5, // Adjust duration as needed
+        ease: "expo.inOut",
+        onComplete: () => {
+          setAnimationStep(2); // Move to fade out step
+        },
+      });
+    } else if (animationStep === 2 && loadingContainerRef.current) {
+      // Animate the entire loading container fading out
+      gsap.to(loadingContainerRef.current, {
+        opacity: 0,
+        duration: 1, // Fade out duration
+        ease: "power1.inOut",
+        onComplete: () => {
+          setAnimationStep(3); // Animation finished
+        },
+      });
+    }
+  }, [animationStep]);
+
+  // Format count to always have two digits (e.g., 01, 09, 10)
+  const formattedCount = count.toString().padStart(2, "0");
+
   return (
     <>
       <div className="overflow-x-hidden">
+        {/* Loading Animation Container */}
+        {animationStep < 3 && (
+          <div
+            ref={loadingContainerRef}
+            className="fixed inset-0 z-[999] bg-white flex justify-center items-center overflow-hidden"
+          >
+            {/* Blue Background Div (starts with zero size) */}
+            <div
+              ref={blueBgRef}
+              className="absolute inset-0 bg-[#0055FF] transform-gpu" // Removed scale-0
+              style={{
+                width: 0,
+                height: 0,
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }} // Start at center with 0 size
+            ></div>
+
+            {/* Counter (ensure it's above the blue bg initially) */}
+            <div
+              ref={numberRef}
+              className="relative z-10 text-sm font-mono text-black" // Made text smaller (text-sm)
+            >
+              {/* Display 100 once count reaches it, otherwise the formatted count */}
+              {count === 100 ? "100" : formattedCount}
+            </div>
+          </div>
+        )}
+
         {/* Desktop & Mobile Navigation */}
-        <div className="navbar px-4 md:px-8 h-16 w-full border-b-violet-50 absolute flex items-center justify-between z-50 bg-[#0055FF]">
+        {/* Ensure nav is only visible/interactive after loading */}
+        <div
+          className={`navbar px-4 md:px-8 h-16 w-full border-b-violet-50 absolute flex items-center justify-between z-50 bg-[#0055FF] transition-opacity duration-300 ${
+            animationStep === 3
+              ? "opacity-100"
+              : "opacity-0 pointer-events-none" // Hide and disable interaction during loading
+          }`}
+        >
           <div className="left-content flex items-center gap-2">
             <div className="logo-dot w-3 md:w-4 h-3 md:h-4 bg-white rounded-full"></div>
             <div className="logo text-lg md:text-xl text-white tracking-tight uppercase">
@@ -163,7 +263,7 @@ export default function HomePage() {
             <div className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8">
               <Link
                 className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base hover:bg-gray-800 transition-colors"
-                href="/dashboard"
+                href="/signup"
               >
                 Get Started
               </Link>
