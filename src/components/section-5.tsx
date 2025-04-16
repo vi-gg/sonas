@@ -6,7 +6,10 @@ export function Section5() {
   return (
     <div className="w-screen h-screen flex">
       <div className="w-full h-full p-4">
-        <div className="w-full h-full rounded-2xl bg-gray-200" />
+        <div
+          className="w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: "url('/images/login2.png')" }}
+        />
       </div>
       <div className="w-full h-full flex items-center gap-0 justify-center">
         <form className="border rounded-lg p-8 w-[22rem]">
@@ -16,7 +19,12 @@ export function Section5() {
           <div className="grid gap-5">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required placeholder="you@example.com" />
+              <Input
+                id="email"
+                type="email"
+                required
+                placeholder="you@example.com"
+              />
             </div>
             <Button type="submit" className="w-full">
               Send rest email

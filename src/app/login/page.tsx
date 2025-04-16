@@ -6,7 +6,10 @@ export default function LoginPage() {
     <>
       <div className="w-screen h-screen flex">
         <div className="w-full h-full p-4">
-          <div className="w-full h-full bg-gray-200" />
+          <div
+            className="w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: "url('/images/login2.png')" }}
+          />
         </div>
         <div className="w-full h-full flex items-center gap-0 justify-center">
           <form

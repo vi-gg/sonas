@@ -35,8 +35,32 @@ export default function SignupPage() {
   return (
     <>
       <div className="w-screen h-screen flex">
-        <div className="w-full h-full p-4">
-          <div className="w-full h-full bg-gray-200" />
+        <div
+          className="w-full h-full relative overflow-hidden"
+          style={{ backgroundColor: "#0f172a" }}
+        >
+          <img
+            src="/images/signup.png"
+            alt="Signup background"
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => {
+              // Show fallback if image fails to load
+              const target = e.target as HTMLImageElement;
+              target.style.display = "none";
+              const fallback =
+                target.parentElement?.querySelector(".video-fallback");
+              if (fallback) {
+                (fallback as HTMLElement).style.display = "block";
+              }
+            }}
+          />
+          {/* Fallback div that will be shown if video fails to load */}
+          <div
+            className="video-fallback absolute inset-0 w-full h-full hidden"
+            style={{
+              backgroundColor: "#0f172a",
+            }}
+          />
         </div>
         <div className="w-full h-full flex items-center gap-0 justify-center">
           <form
