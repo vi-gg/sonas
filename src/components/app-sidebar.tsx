@@ -72,6 +72,7 @@ interface AppSidebarProps {
   userName?: string;
   userEmail?: string;
   userInitials?: string;
+  orgName?: string;
 }
 
 export function AppSidebar({
@@ -81,6 +82,7 @@ export function AppSidebar({
   userName = "Monkey D. Luffy",
   userEmail = "monkeydluffy@pirateking.com",
   userInitials = "CN",
+  orgName = "Acme Inc",
 }: AppSidebarProps) {
   return (
     <SidebarProvider>
@@ -96,7 +98,7 @@ export function AppSidebar({
                   <GalleryVerticalEnd className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Acme Inc</span>
+                  <span className="truncate font-semibold">{orgName}</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
               </SidebarMenuButton>
@@ -227,7 +229,7 @@ export function AppSidebar({
                   data-active={activePage === "account"}
                 >
                   <a href="/account">
-                    <Ellipsis className="text-sidebar-foreground/70" />
+                    <CreditCard className="text-sidebar-foreground/70" />
                     <span>Account</span>
                   </a>
                 </SidebarMenuButton>

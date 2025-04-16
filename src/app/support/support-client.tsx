@@ -1,19 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 interface SupportClientProps {
@@ -21,18 +16,7 @@ interface SupportClientProps {
 }
 
 export default function SupportClient({ user }: SupportClientProps) {
-  const [message, setMessage] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real app, you would send the message to your backend
-    console.log("Support message submitted:", message);
-    setSubmitted(true);
-    setMessage("");
-  };
-
-  // Dummy FAQ data
+  // Updated FAQ data with the required changes
   const faqs = [
     {
       question: "How do I create a new simulation?",
@@ -42,12 +26,11 @@ export default function SupportClient({ user }: SupportClientProps) {
     {
       question: "What is the maximum number of responses I can get?",
       answer:
-        "The free tier allows up to 100 responses per simulation. Upgrade to Pro for unlimited responses.",
+        "We recommend to keep it under 20 responses per simulation for optimal results.",
     },
     {
       question: "How long does it take to get simulation results?",
-      answer:
-        "Most simulations complete within 24 hours, depending on the complexity and number of responses requested.",
+      answer: "Most simulations can be done under 5 minutes.",
     },
     {
       question: "Can I export my simulation data?",
@@ -64,72 +47,66 @@ export default function SupportClient({ user }: SupportClientProps) {
       userEmail={user.email || ""}
       userInitials={user.email?.substring(0, 2).toUpperCase() || "U"}
     >
-      <h1 className="text-2xl font-bold mb-6">Support Center</h1>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-medium mb-6 text-slate-800">
+          Help Center
+        </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Frequently Asked Questions</CardTitle>
-              <CardDescription>
-                Find answers to common questions about using our platform
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {faqs.map((faq, index) => (
-                  <div key={index} className="space-y-2">
-                    <h3 className="font-medium text-lg">{faq.question}</h3>
-                    <p className="text-gray-600">{faq.answer}</p>
-                    {index < faqs.length - 1 && <Separator className="my-4" />}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Support</CardTitle>
-              <CardDescription>
-                Need more help? Send us a message
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {submitted ? (
-                <div className="bg-green-50 p-4 rounded-md text-green-800">
-                  <p className="font-medium">Message sent!</p>
-                  <p className="text-sm mt-1">
-                    We'll get back to you within 24 hours.
-                  </p>
+        <Card className="border-slate-200 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-slate-800">
+              Frequently Asked Questions
+            </CardTitle>
+            <CardDescription className="text-slate-500">
+              Find answers to common questions about using our platform
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-5">
+              {faqs.map((faq, index) => (
+                <div key={index} className="space-y-2">
+                  <h3 className="font-medium text-slate-700">{faq.question}</h3>
+                  <p className="text-slate-600">{faq.answer}</p>
+                  {index < faqs.length - 1 && (
+                    <Separator className="my-4 bg-slate-100" />
+                  )}
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Your Message</Label>
-                    <textarea
-                      id="message"
-                      className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="Describe your issue or question..."
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Submit
-                  </Button>
-                </form>
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col items-start">
-              <p className="text-sm text-gray-500">You can also reach us at:</p>
-              <p className="text-sm font-medium">support@sonas.ai</p>
-            </CardFooter>
-          </Card>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6 border-slate-200 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-slate-800">Contact Support</CardTitle>
+            <CardDescription className="text-slate-500">
+              Our support team is available to help
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-slate-50 p-4 rounded-md text-slate-700">
+              <p className="text-sm">
+                Support is currently unavailable through the ticketing system.
+                Please check our FAQ for common questions.
+              </p>
+            </div>
+            <form className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <textarea
+                  disabled
+                  className="flex min-h-[120px] w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm ring-offset-background placeholder:text-slate-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70"
+                  placeholder="Support message system currently unavailable..."
+                />
+              </div>
+              <button
+                disabled
+                className="w-full py-2 px-4 rounded-md bg-slate-100 text-slate-500 border border-slate-200 disabled:opacity-70"
+              >
+                Submit
+              </button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </AppSidebar>
   );
