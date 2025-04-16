@@ -274,7 +274,19 @@ export default function HomePage() {
         </section>
         {/* SECTION 05 - FOOTER */}
         <section className="w-full bg-[#0f0099] text-white min-h-screen py-16 md:h-[100svh] relative">
-          <div className="md:absolute top-8 left-0 md:left-8 max-w-full md:max-w-sm p-4 md:p-0">
+          {/* Centered Background Image */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 opacity-20">
+            <Image
+              src="/images/home-footer-min.png"
+              alt="Footer background decoration"
+              width={600} // Adjust size as needed
+              height={600} // Adjust size as needed
+              className="pointer-events-none" // Prevent image from interfering with clicks
+            />
+          </div>
+
+          {/* Existing Footer Content - Ensure it has higher z-index if needed */}
+          <div className="md:absolute top-8 left-0 md:left-8 max-w-full md:max-w-sm p-4 md:p-0 z-10">
             <p className="text-xs md:text-sm opacity-70">
               Sonas is an open source world simulation project. <br /> You can
               contribute to the project on{" "}
@@ -290,7 +302,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="md:absolute top-8 right-0 md:right-8 max-w-full md:max-w-xs text-left md:text-right p-4 md:p-0 mt-8 md:mt-0">
+          <div className="md:absolute top-8 right-0 md:right-8 max-w-full md:max-w-xs text-left md:text-right p-4 md:p-0 mt-8 md:mt-0 z-10">
             <p className="text-xs md:text-sm opacity-70">
               © 2025 — Present. All rights reserved Sonas.
             </p>
@@ -306,7 +318,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="md:absolute bottom-8 right-0 md:right-8 max-w-full md:max-w-xs text-left md:text-right p-4 md:p-0 mt-12 mb-8 md:my-0">
+          <div className="md:absolute bottom-8 right-0 md:right-8 max-w-full md:max-w-xs text-left md:text-right p-4 md:p-0 mt-12 mb-8 md:my-0 z-10">
             <div className="flex flex-col gap-2 text-xs md:text-sm opacity-70">
               <Link
                 href="#"
