@@ -18,6 +18,7 @@ export default function HomePage() {
   const loadingContainerRef = useRef<HTMLDivElement>(null);
   const blueBgRef = useRef<HTMLDivElement>(null);
   const numberRef = useRef<HTMLDivElement>(null);
+  const counterDotRef = useRef<HTMLDivElement>(null); // Ref for the counter dot
   const heroHeadingRef = useRef<HTMLParagraphElement>(null); // Ref for the hero heading
   const heroBodyRef = useRef<HTMLParagraphElement>(null); // Ref for the hero body copy
   const heroImageRef = useRef<HTMLDivElement>(null); // Ref for the hero image container
@@ -31,9 +32,16 @@ export default function HomePage() {
 
   // Initialize smooth scrolling
   useEffect(() => {
-    // Initialize smooth scrolling with Lenis
-    // Using a simpler implementation to avoid TypeScript errors
-    const lenis = new Lenis();
+    // Initialize smooth scrolling with Lenis with enhanced options for buttery smooth scrolling
+    const lenis = new Lenis({
+      duration: 1.25, // Perfect duration for buttery smooth scrolling
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom easing function
+      orientation: "vertical", // Scroll direction
+      wheelMultiplier: 0.8, // Adjusted for smoother wheel scrolling
+      touchMultiplier: 2, // Adjusted for touch devices
+      infinite: false, // Disable infinite scrolling
+      lerp: 0.15, // Linear interpolation factor for smoothness
+    });
 
     function raf(time: number) {
       lenis.raf(time);
@@ -81,6 +89,7 @@ export default function HomePage() {
       masterTimeline.current &&
       blueBgRef.current &&
       numberRef.current &&
+      counterDotRef.current &&
       loadingContainerRef.current &&
       heroHeadingRef.current &&
       heroBodyRef.current &&
@@ -160,8 +169,8 @@ export default function HomePage() {
 
       // Build the complete animation sequence
       masterTimeline.current
-        // 1. Fade out the counter
-        .to(numberRef.current, {
+        // 1. Fade out the counter and dot
+        .to([numberRef.current, counterDotRef.current], {
           opacity: 0,
           duration: 0.5,
           ease: "power1.inOut",
@@ -189,9 +198,9 @@ export default function HomePage() {
           {
             y: 0,
             opacity: 1,
-            duration: 1,
+            duration: 1.1,
             ease: "expo.out",
-            stagger: 0.2, // Slightly faster stagger for smoother flow
+            stagger: 0.09, // Slightly faster stagger for smoother flow
           },
           "-=0.2" // Start much sooner - only 0.3s gap after blue background fills screen
         )
@@ -355,13 +364,22 @@ export default function HomePage() {
               }} // Start at center with 0 size
             ></div>
 
-            {/* Counter (ensure it's above the blue bg initially) */}
-            <div
-              ref={numberRef}
-              className="relative z-10 text-sm font-mono text-black" // Made text smaller (text-sm)
-            >
-              {/* Display 100 once count reaches it, otherwise the formatted count */}
-              {count === 100 ? "100" : formattedCount}
+            {/* Counter with dot (ensure it's above the blue bg initially) */}
+            <div className="relative z-10 flex items-center gap-2">
+              {/* Counter dot - similar to navbar dot */}
+              <div
+                ref={counterDotRef}
+                className="w-2 h-2 bg-black rounded-full"
+              ></div>
+
+              {/* Counter */}
+              <div
+                ref={numberRef}
+                className="text-sm font-mono text-black" // Made text smaller (text-sm)
+              >
+                {/* Display 100 once count reaches it, otherwise the formatted count */}
+                {count === 100 ? "100" : formattedCount}
+              </div>
             </div>
           </div>
         )}
