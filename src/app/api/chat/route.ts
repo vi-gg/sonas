@@ -7,8 +7,11 @@ export async function POST(req: NextRequest) {
     const { messages, persona }: { messages: UIMessage[]; persona: any } =
       await req.json();
 
+    // Check if this is the first message from the user
+    const isFirstMessage = messages.length === 1 && messages[0].role === "user";
+
     // Construct the system message based on the persona information
-    const personaContext = constructPersonaContext(persona);
+    const personaContext = constructPersonaContext(persona, isFirstMessage);
 
     const result = streamText({
       model: openai("gpt-4o"),
@@ -30,7 +33,10 @@ export async function POST(req: NextRequest) {
 }
 
 // Helper function to construct the persona context for the system message
-function constructPersonaContext(persona: any): string {
+function constructPersonaContext(
+  persona: any,
+  isFirstMessage: boolean
+): string {
   if (!persona) {
     return "You are a helpful assistant.";
   }
@@ -48,6 +54,11 @@ You've previously answered questions in the following way:
     persona.responses.forEach((response: any, index: number) => {
       context += `\nQuestion: ${response.question}\nYour answer: ${response.answer}\n`;
     });
+  }
+
+  // Add instruction for initial greeting if this is the first message
+  if (isFirstMessage) {
+    context += `\nThis is the start of a new conversation with a user. Begin with a friendly greeting introducing yourself as ${persona.name} and briefly mentioning your demographic information. Make your greeting friendly and conversational. Then respond to the user's message. DO NOT repeat yourself or create duplicate text in your greeting.`;
   }
 
   context += `\nPlease respond as this persona consistently with the backstory and previous answers. Be conversational and natural in your responses.`;

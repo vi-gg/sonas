@@ -1307,30 +1307,53 @@ function ChatWithPersona({ persona, onClose }: ChatWithPersonaProps) {
   // Message container ref for auto-scrolling
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
-  // Load chat history from localStorage on component mount
+  // Load chat history from localStorage on component mount - with no local message generation
   useEffect(() => {
     try {
+      // First, check if there might be corrupted data and clear it
+      try {
+        const savedData = localStorage.getItem(chatId);
+        if (savedData) {
+          // Try to parse it to verify it's valid
+          JSON.parse(savedData);
+        }
+      } catch (parseError) {
+        // If there's any error parsing, clear this potentially corrupt data
+        console.warn("Found corrupt chat history, clearing it:", parseError);
+        localStorage.removeItem(chatId);
+      }
+
+      // Now try to load valid data
       const savedMessages = localStorage.getItem(chatId);
-      if (savedMessages) {
+      if (savedMessages && messages.length === 0) {
         const parsedMessages = JSON.parse(savedMessages) as Message[];
-        // If there are saved messages and our current messages array is empty,
-        // initialize with the saved messages
-        if (parsedMessages.length > 0 && messages.length === 0) {
+        // Only load saved messages if we have them and our current messages array is empty
+        if (parsedMessages.length > 0) {
+          // Simply load existing messages - no greeting or additional messages
           parsedMessages.forEach((msg) => {
             append(msg);
           });
         }
-      } else if (messages.length === 0) {
-        // Send an initial greeting message if no saved messages and no current messages
-        append({
-          content: `Hello! I'm ${persona.name}, a ${persona.demographics.age}-year-old ${persona.demographics.gender} from ${persona.demographics.country} working in the ${persona.demographics.industry} industry. How can I help you today?`,
-          role: "assistant",
-        });
       }
+      // Don't add any initial messages - wait for the user to start the conversation
     } catch (error) {
       console.error("Error loading chat history:", error);
+      // If any error occurs with localStorage, clear it to start fresh
+      localStorage.removeItem(chatId);
     }
-  }, [chatId]);
+  }, [chatId, messages, append]);
+
+  // Send an initial hidden message to trigger the AI to introduce itself
+  useEffect(() => {
+    // Only send the introduction message if there are no messages yet
+    if (messages.length === 0) {
+      // Send a hidden message to the API to trigger persona introduction
+      append({
+        content: "Hello",
+        role: "user",
+      });
+    }
+  }, []); // Empty dependency array ensures this only runs once when the component mounts
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
