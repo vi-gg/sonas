@@ -406,6 +406,64 @@ export default function ViewSimulationClient({
           pointer-events: none !important;
           transform: scale(0) !important;
         }
+
+        /* Animation for smooth fade-in */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Typing indicator animation */
+        .typing-indicator {
+          display: flex;
+          align-items: center;
+        }
+        .typing-indicator span {
+          height: 8px;
+          width: 8px;
+          margin: 0 1px;
+          background-color: #a78bfa;
+          border-radius: 50%;
+          display: inline-block;
+          opacity: 0.4;
+        }
+        .typing-indicator span:nth-of-type(1) {
+          animation: pulse 1s infinite 0.1s;
+        }
+        .typing-indicator span:nth-of-type(2) {
+          animation: pulse 1s infinite 0.2s;
+        }
+        .typing-indicator span:nth-of-type(3) {
+          animation: pulse 1s infinite 0.3s;
+        }
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+          50% {
+            transform: scale(1.4);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+        }
+
+        /* Smooth message transition */
+        .ChatWithPersona p {
+          transition: opacity 0.3s ease-in-out;
+        }
       `}</style>
 
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
@@ -1355,9 +1413,11 @@ function ChatWithPersona({ persona, onClose }: ChatWithPersonaProps) {
     }
   }, []); // Empty dependency array ensures this only runs once when the component mounts
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive with smooth animation
   useEffect(() => {
     if (messageContainerRef.current) {
+      // Add smooth scrolling behavior
+      messageContainerRef.current.style.scrollBehavior = "smooth";
       messageContainerRef.current.scrollTop =
         messageContainerRef.current.scrollHeight;
     }
@@ -1380,63 +1440,69 @@ function ChatWithPersona({ persona, onClose }: ChatWithPersonaProps) {
   };
 
   return (
-    <div className="py-6 px-6 space-y-4">
+    <div className="py-6 px-6 space-y-4 ChatWithPersona">
       {/* Chat history */}
       <div
         ref={messageContainerRef}
         className="border border-slate-200 rounded-md p-4 h-[320px] overflow-y-auto flex flex-col space-y-4 bg-slate-50 shadow-inner"
       >
-        {messages.map((message, idx) => (
-          <div
-            key={idx}
-            className={`flex items-start space-x-3 ${
-              message.role === "user" ? "justify-end" : ""
-            }`}
-          >
-            {message.role !== "user" && (
-              <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                {persona.name.charAt(0)}
-              </div>
-            )}
-
+        {messages.map((message, idx) =>
+          // Skip the initial hidden message
+          message.role === "user" &&
+          idx === 0 &&
+          messages.length > 1 &&
+          messages.filter((m) => m.role === "user").length === 1 ? null : (
             <div
-              className={`p-3 rounded-lg max-w-[85%] relative ${
-                message.role === "user"
-                  ? "bg-purple-100 text-purple-800"
-                  : "bg-white shadow-sm border border-slate-200 text-slate-700"
+              key={idx}
+              className={`flex items-start space-x-3 animate-fade-in ${
+                message.role === "user" ? "justify-end" : ""
               }`}
             >
-              <div
-                className={`absolute ${
-                  message.role === "user"
-                    ? "right-[-8px] top-3 w-4 h-4 bg-purple-100"
-                    : "left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200"
-                } transform rotate-45`}
-              ></div>
-              <p className={`text-sm relative z-10`}>{message.content}</p>
-            </div>
+              {message.role !== "user" && (
+                <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                  {persona.name.charAt(0)}
+                </div>
+              )}
 
-            {message.role === "user" && (
-              <div className="h-8 w-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                U
+              <div
+                className={`p-3 rounded-lg max-w-[85%] relative ${
+                  message.role === "user"
+                    ? "bg-purple-100 text-purple-800"
+                    : "bg-white shadow-sm border border-slate-200 text-slate-700"
+                }`}
+              >
+                <div
+                  className={`absolute ${
+                    message.role === "user"
+                      ? "right-[-8px] top-3 w-4 h-4 bg-purple-100"
+                      : "left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200"
+                  } transform rotate-45`}
+                ></div>
+                <p className={`text-sm relative z-10`}>{message.content}</p>
               </div>
-            )}
-          </div>
-        ))}
+
+              {message.role === "user" && (
+                <div className="h-8 w-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                  U
+                </div>
+              )}
+            </div>
+          )
+        )}
         {isLoading && (
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start space-x-3 animate-fade-in">
             <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
               {persona.name.charAt(0)}
             </div>
             <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-200 max-w-[85%] relative">
               <div className="absolute left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200 transform rotate-45"></div>
-              <p className="text-sm text-slate-700 relative z-10 flex items-center">
-                <span className="flex space-x-1">
-                  <span className="animate-bounce">.</span>
-                  <span className="animate-bounce delay-75">.</span>
-                  <span className="animate-bounce delay-150">.</span>
-                </span>
-              </p>
+              <div className="text-sm text-slate-700 relative z-10 flex items-center">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
             </div>
           </div>
         )}
