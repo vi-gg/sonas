@@ -40,6 +40,14 @@ interface Simulation {
     ageRanges: string[];
     householdIncomes: string[];
   };
+  psychographics?: {
+    personality?: string[];
+    attitudes?: string[];
+    opinions?: string[];
+    socialClass?: string[];
+    lifestyle?: string[];
+    interests?: string[];
+  };
   questions: Array<{
     question: string;
     options: string[];
@@ -150,6 +158,31 @@ export default function ViewSimulationClient({
         const incomeMatch = backstory.match(/household_income\s*:\s*([^,]+)/i);
         const industryMatch = backstory.match(/industry\s*:\s*([^,]+)/i);
 
+        // Extract psychographics details using regex
+        const interestsMatch = backstory.match(/interests\s*:\s*(\[[^\]]+\])/i);
+        const personalityMatch = backstory.match(/personality\s*:\s*([^,]+)/i);
+        const attitudesMatch = backstory.match(/attitudes\s*:\s*([^,]+)/i);
+        const opinionsMatch = backstory.match(/opinions\s*:\s*([^,]+)/i);
+        const socialClassMatch = backstory.match(/social_class\s*:\s*([^,]+)/i);
+        const lifestyleMatch = backstory.match(/lifestyle\s*:\s*([^,]+)/i);
+
+        // Process interests to convert from string array to actual array
+        let interestsArray: string[] = [];
+        if (interestsMatch && interestsMatch[1]) {
+          try {
+            // The regex captures like ['Gaming', 'Music']
+            const interestsStr = interestsMatch[1].replace(/'/g, '"');
+            interestsArray = JSON.parse(interestsStr);
+          } catch (e) {
+            // If parsing fails, try to extract manually
+            const interestsStr = interestsMatch[1];
+            interestsArray = interestsStr
+              .replace(/[\[\]']/g, "")
+              .split(",")
+              .map((item) => item.trim());
+          }
+        }
+
         personaMap.set(personaName, {
           name: nameMatch ? nameMatch[1].trim() : personaName,
           demographics: {
@@ -158,6 +191,14 @@ export default function ViewSimulationClient({
             age: ageMatch ? parseInt(ageMatch[1]) : null,
             income: incomeMatch ? incomeMatch[1].trim() : "",
             industry: industryMatch ? industryMatch[1].trim() : "",
+          },
+          psychographics: {
+            personality: personalityMatch ? [personalityMatch[1].trim()] : [],
+            attitudes: attitudesMatch ? [attitudesMatch[1].trim()] : [],
+            opinions: opinionsMatch ? [opinionsMatch[1].trim()] : [],
+            socialClass: socialClassMatch ? [socialClassMatch[1].trim()] : [],
+            lifestyle: lifestyleMatch ? [lifestyleMatch[1].trim()] : [],
+            interests: interestsArray,
           },
           backstory: backstory,
           responses: [],
@@ -696,6 +737,204 @@ export default function ViewSimulationClient({
                   </div>
                 )}
 
+                {/* Psychographics */}
+                {currentSimulation.psychographics && (
+                  <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm overflow-hidden transition-all hover:shadow-md">
+                    <h3 className="text-base font-medium mb-3 text-slate-800 flex items-center border-b pb-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 mr-2 text-indigo-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Psychographics
+                    </h3>
+                    <div className="grid grid-cols-2 gap-y-3 text-sm">
+                      <div className="text-slate-500 font-medium flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1 text-indigo-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                        </svg>
+                        Personality:
+                      </div>
+                      <div className="font-semibold text-slate-700">
+                        <div className="flex flex-wrap gap-1">
+                          {currentSimulation.psychographics.personality?.map(
+                            (trait, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                              >
+                                {trait}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-slate-500 font-medium flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1 text-indigo-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Attitudes:
+                      </div>
+                      <div className="font-semibold text-slate-700">
+                        <div className="flex flex-wrap gap-1">
+                          {currentSimulation.psychographics.attitudes?.map(
+                            (attitude, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                              >
+                                {attitude}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-slate-500 font-medium flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1 text-indigo-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Opinions:
+                      </div>
+                      <div className="font-semibold text-slate-700">
+                        <div className="flex flex-wrap gap-1">
+                          {currentSimulation.psychographics.opinions?.map(
+                            (opinion, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                              >
+                                {opinion}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-slate-500 font-medium flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1 text-indigo-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Social Class:
+                      </div>
+                      <div className="font-semibold text-slate-700">
+                        <div className="flex flex-wrap gap-1">
+                          {currentSimulation.psychographics.socialClass?.map(
+                            (socialClass, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                              >
+                                {socialClass}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-slate-500 font-medium flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1 text-indigo-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Lifestyle:
+                      </div>
+                      <div className="font-semibold text-slate-700">
+                        <div className="flex flex-wrap gap-1">
+                          {currentSimulation.psychographics.lifestyle?.map(
+                            (lifestyle, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                              >
+                                {lifestyle}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-slate-500 font-medium flex items-center">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 mr-1 text-indigo-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Interests:
+                      </div>
+                      <div className="font-semibold text-slate-700">
+                        <div className="flex flex-wrap gap-1">
+                          {currentSimulation.psychographics.interests?.map(
+                            (interest, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                              >
+                                {interest}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Questions */}
                 {currentSimulation.questions &&
                   currentSimulation.questions.length > 0 && (
@@ -1137,6 +1376,216 @@ export default function ViewSimulationClient({
                             </div>
                           </div>
                         </div>
+
+                        {/* Psychographics section */}
+                        {selectedPersona.psychographics && (
+                          <div className="mb-5">
+                            <h4 className="text-base font-medium mb-3 text-slate-800 flex items-center">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5 mr-2 text-indigo-500"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              Psychographics
+                            </h4>
+                            <div className="grid grid-cols-2 gap-y-2 text-sm bg-indigo-50 p-4 rounded-md">
+                              {selectedPersona.psychographics.personality && (
+                                <>
+                                  <div className="text-slate-600 font-medium flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 mr-1 text-indigo-400"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                    </svg>
+                                    Personality:
+                                  </div>
+                                  <div className="text-slate-800 font-semibold flex flex-wrap gap-1">
+                                    {selectedPersona.psychographics.personality.map(
+                                      (trait: string, idx: number) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                                        >
+                                          {trait}
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                </>
+                              )}
+
+                              {selectedPersona.psychographics.attitudes && (
+                                <>
+                                  <div className="text-slate-600 font-medium flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 mr-1 text-indigo-400"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Attitudes:
+                                  </div>
+                                  <div className="text-slate-800 font-semibold flex flex-wrap gap-1">
+                                    {selectedPersona.psychographics.attitudes.map(
+                                      (attitude: string, idx: number) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                                        >
+                                          {attitude}
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                </>
+                              )}
+
+                              {selectedPersona.psychographics.opinions && (
+                                <>
+                                  <div className="text-slate-600 font-medium flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 mr-1 text-indigo-400"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Opinions:
+                                  </div>
+                                  <div className="text-slate-800 font-semibold flex flex-wrap gap-1">
+                                    {selectedPersona.psychographics.opinions.map(
+                                      (opinion: string, idx: number) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                                        >
+                                          {opinion}
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                </>
+                              )}
+
+                              {selectedPersona.psychographics.socialClass && (
+                                <>
+                                  <div className="text-slate-600 font-medium flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 mr-1 text-indigo-400"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Social Class:
+                                  </div>
+                                  <div className="text-slate-800 font-semibold flex flex-wrap gap-1">
+                                    {selectedPersona.psychographics.socialClass.map(
+                                      (socialClass: string, idx: number) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                                        >
+                                          {socialClass}
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                </>
+                              )}
+
+                              {selectedPersona.psychographics.lifestyle && (
+                                <>
+                                  <div className="text-slate-600 font-medium flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 mr-1 text-indigo-400"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Lifestyle:
+                                  </div>
+                                  <div className="text-slate-800 font-semibold flex flex-wrap gap-1">
+                                    {selectedPersona.psychographics.lifestyle.map(
+                                      (lifestyle: string, idx: number) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                                        >
+                                          {lifestyle}
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                </>
+                              )}
+
+                              {selectedPersona.psychographics.interests && (
+                                <>
+                                  <div className="text-slate-600 font-medium flex items-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4 mr-1 text-indigo-400"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Interests:
+                                  </div>
+                                  <div className="text-slate-800 font-semibold flex flex-wrap gap-1">
+                                    {selectedPersona.psychographics.interests.map(
+                                      (interest: string, idx: number) => (
+                                        <span
+                                          key={idx}
+                                          className="inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs"
+                                        >
+                                          {interest}
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        )}
 
                         {/* Responses section */}
                         {selectedPersona.responses.length > 0 && (
