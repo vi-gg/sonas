@@ -534,7 +534,7 @@ export default function HomePage() {
           id="home-hero"
           className="home-hero bg-[#0055FF] w-full h-screen relative pt-16"
         >
-          <div className="absolute top-[15svh] w-full px-4 md:px-6 z-20">
+          <div className="relative w-full px-4 md:px-6 z-20 pt-[15svh]">
             <div className="overflow-hidden">
               <p
                 ref={heroHeadingRef}
@@ -543,9 +543,9 @@ export default function HomePage() {
                 Shaping the Science of predictive discovery for the future
               </p>
             </div>
-          </div>
-          <div className="absolute bottom-[25svh] w-full px-4 md:px-8 z-20">
-            <div className="overflow-hidden">
+
+            {/* Text moved below heading with 2rem spacing */}
+            <div className="overflow-hidden mt-8">
               <p
                 ref={heroBodyRef}
                 className="text-sm md:text-base max-w-full md:max-w-md text-white"
@@ -555,19 +555,9 @@ export default function HomePage() {
                 and outcomes unfold with remarkable accuracy.
               </p>
             </div>
-          </div>
-          <div ref={heroImageRef} className="w-full absolute left-0 bottom-0">
-            <Image
-              className="m-auto z-10 w-full max-w-[350px] md:max-w-[450px] lg:max-w-[550px] h-auto"
-              src="/images/home-hero-image.png"
-              width={550}
-              height={550}
-              alt="Hero visualization"
-            />
-            <div
-              ref={heroButtonRef}
-              className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8"
-            >
+
+            {/* Button moved below text */}
+            <div ref={heroButtonRef} className="mt-6 z-20 flex justify-start">
               <Link
                 className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base cta-button signup-cta"
                 href="/signup"
@@ -578,6 +568,16 @@ export default function HomePage() {
                 Get Started
               </Link>
             </div>
+          </div>
+
+          <div ref={heroImageRef} className="w-full absolute left-0 bottom-0">
+            <Image
+              className="m-auto z-10 w-full max-w-[350px] md:max-w-[450px] lg:max-w-[550px] h-auto"
+              src="/images/home-hero-image.png"
+              width={550}
+              height={550}
+              alt="Hero visualization"
+            />
           </div>
         </section>
         {/* SECTION 02 */}
@@ -735,10 +735,41 @@ export default function HomePage() {
                 SONAS
               </div>
             </div>
+
+            {/* Legal links moved to bottom left for tablet and below - stacked */}
+            <div className="flex md:hidden flex-col gap-2 text-xs opacity-70 mt-4">
+              <Link
+                href="#"
+                className="nav-link"
+                ref={(el) => {
+                  navLinksRef.current[4] = el;
+                }}
+              >
+                Terms
+              </Link>
+              <Link
+                href="#"
+                className="nav-link"
+                ref={(el) => {
+                  navLinksRef.current[5] = el;
+                }}
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="#"
+                className="nav-link"
+                ref={(el) => {
+                  navLinksRef.current[6] = el;
+                }}
+              >
+                Cookie Policy
+              </Link>
+            </div>
           </div>
 
           <div className="md:absolute bottom-8 right-0 md:right-8 max-w-full md:max-w-xs text-left md:text-right p-4 md:p-0 mt-12 mb-8 md:my-0 z-10">
-            <div className="flex flex-col gap-2 text-xs md:text-sm opacity-70">
+            <div className="hidden md:flex flex-col gap-2 text-xs md:text-sm opacity-70">
               <Link
                 href="#"
                 className="nav-link"
