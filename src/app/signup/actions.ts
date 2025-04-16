@@ -22,5 +22,6 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/new-simulation");
+  // Return success instead of redirecting
+  return { success: true, email: data.email };
 }

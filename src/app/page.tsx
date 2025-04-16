@@ -534,7 +534,6 @@ export default function HomePage() {
           id="home-hero"
           className="home-hero bg-[#0055FF] w-full h-screen relative pt-16"
         >
-          {/* Desktop layout (default) and mobile/tablet layout with media queries */}
           <div className="absolute top-[15svh] w-full px-4 md:px-6 z-20">
             <div className="overflow-hidden">
               <p
@@ -545,9 +544,7 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-
-          {/* Body text - absolute for desktop, relative for mobile/tablet */}
-          <div className="absolute bottom-[25svh] w-full px-4 md:px-8 z-20 sm:static sm:mt-8 sm:bottom-auto md:absolute md:bottom-[25svh] md:mt-0">
+          <div className="absolute bottom-[25svh] w-full px-4 md:px-8 z-20">
             <div className="overflow-hidden">
               <p
                 ref={heroBodyRef}
@@ -559,7 +556,6 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-
           <div ref={heroImageRef} className="w-full absolute left-0 bottom-0">
             <Image
               className="m-auto z-10 w-full max-w-[350px] md:max-w-[450px] lg:max-w-[550px] h-auto"
@@ -568,10 +564,9 @@ export default function HomePage() {
               height={550}
               alt="Hero visualization"
             />
-            {/* Button - inside image container for desktop, moved below text for mobile/tablet */}
             <div
               ref={heroButtonRef}
-              className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8 sm:static sm:mt-6 sm:justify-start sm:pb-0 md:absolute md:justify-end md:bottom-0 md:left-0 md:mt-0"
+              className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8"
             >
               <Link
                 className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base cta-button signup-cta"
@@ -740,41 +735,10 @@ export default function HomePage() {
                 SONAS
               </div>
             </div>
-
-            {/* Legal links moved to bottom left for tablet and below - stacked */}
-            <div className="flex md:hidden flex-col gap-2 text-xs opacity-70 mt-4">
-              <Link
-                href="#"
-                className="nav-link"
-                ref={(el) => {
-                  navLinksRef.current[4] = el;
-                }}
-              >
-                Terms
-              </Link>
-              <Link
-                href="#"
-                className="nav-link"
-                ref={(el) => {
-                  navLinksRef.current[5] = el;
-                }}
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="#"
-                className="nav-link"
-                ref={(el) => {
-                  navLinksRef.current[6] = el;
-                }}
-              >
-                Cookie Policy
-              </Link>
-            </div>
           </div>
 
           <div className="md:absolute bottom-8 right-0 md:right-8 max-w-full md:max-w-xs text-left md:text-right p-4 md:p-0 mt-12 mb-8 md:my-0 z-10">
-            <div className="hidden md:flex flex-col gap-2 text-xs md:text-sm opacity-70">
+            <div className="flex flex-col gap-2 text-xs md:text-sm opacity-70">
               <Link
                 href="#"
                 className="nav-link"
