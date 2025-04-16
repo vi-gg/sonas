@@ -232,6 +232,112 @@ export function NewSimulationFormStep04({
 
               <div>
                 <h4 className="font-medium text-sm text-gray-500 mb-2">
+                  Psychographics
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500">Personality</p>
+                    <div className="space-y-1">
+                      {(formData?.psychographics?.personality || []).map(
+                        (personality: string, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-white px-2 py-1 rounded border text-sm"
+                          >
+                            {personality}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500">Attitudes</p>
+                    <div className="space-y-1">
+                      {(formData?.psychographics?.attitudes || []).map(
+                        (attitude: string, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-white px-2 py-1 rounded border text-sm"
+                          >
+                            {attitude}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500">Opinions</p>
+                    <div className="space-y-1">
+                      {(formData?.psychographics?.opinions || []).map(
+                        (opinion: string, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-white px-2 py-1 rounded border text-sm"
+                          >
+                            {opinion}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500">Social Class</p>
+                    <div className="space-y-1">
+                      {(formData?.psychographics?.socialClass || []).map(
+                        (socialClass: string, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-white px-2 py-1 rounded border text-sm"
+                          >
+                            {socialClass}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500">Lifestyle</p>
+                    <div className="space-y-1">
+                      {(formData?.psychographics?.lifestyle || []).map(
+                        (lifestyle: string, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-white px-2 py-1 rounded border text-sm"
+                          >
+                            {lifestyle}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500">Interests</p>
+                    <div className="space-y-1">
+                      {(formData?.psychographics?.interests || []).map(
+                        (interest: string, index: number) => (
+                          <div
+                            key={index}
+                            className="bg-white px-2 py-1 rounded border text-sm"
+                          >
+                            {interest}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator className="my-2" />
+
+              <div>
+                <h4 className="font-medium text-sm text-gray-500 mb-2">
                   Questions ({formData.questions.length})
                 </h4>
                 <div className="space-y-3">
