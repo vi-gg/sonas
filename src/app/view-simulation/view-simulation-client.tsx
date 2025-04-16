@@ -428,8 +428,8 @@ export default function ViewSimulationClient({
           align-items: center;
         }
         .typing-indicator span {
-          height: 8px;
-          width: 8px;
+          height: 5px;
+          width: 5px;
           margin: 0 1px;
           background-color: #a78bfa;
           border-radius: 50%;
@@ -1347,8 +1347,11 @@ function ChatWithPersona({ persona, onClose }: ChatWithPersonaProps) {
   // Generate a unique chat ID based on the persona name
   const chatId = `persona-chat-${persona.name.toLowerCase().replace(/\s+/g, "-")}`;
 
+  // State to track if we're in initial loading phase (before streaming starts)
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
   // Initialize chat functionality with the AI SDK
-  const { messages, input, setInput, append, isLoading } = useChat({
+  const { messages, input, setInput, append, isLoading, error } = useChat({
     id: chatId,
     api: "/api/chat",
     initialMessages: [],
@@ -1401,11 +1404,11 @@ function ChatWithPersona({ persona, onClose }: ChatWithPersonaProps) {
     }
   }, [chatId, messages, append]);
 
-  // Send an initial hidden message to trigger the AI to introduce itself
+  // Send an initial "Hello" message to trigger the AI to introduce itself
   useEffect(() => {
     // Only send the introduction message if there are no messages yet
     if (messages.length === 0) {
-      // Send a hidden message to the API to trigger persona introduction
+      // Send the "Hello" message to the API to trigger persona introduction
       append({
         content: "Hello",
         role: "user",
@@ -1446,50 +1449,44 @@ function ChatWithPersona({ persona, onClose }: ChatWithPersonaProps) {
         ref={messageContainerRef}
         className="border border-slate-200 rounded-md p-4 h-[320px] overflow-y-auto flex flex-col space-y-4 bg-slate-50 shadow-inner"
       >
-        {messages.map((message, idx) =>
-          // Skip the initial hidden message
-          message.role === "user" &&
-          idx === 0 &&
-          messages.length > 1 &&
-          messages.filter((m) => m.role === "user").length === 1 ? null : (
+        {messages.map((message, idx) => (
+          <div
+            key={idx}
+            className={`flex items-start space-x-3 animate-fade-in ${
+              message.role === "user" ? "justify-end" : ""
+            }`}
+          >
+            {message.role !== "user" && (
+              <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                {persona.name.charAt(0)}
+              </div>
+            )}
+
             <div
-              key={idx}
-              className={`flex items-start space-x-3 animate-fade-in ${
-                message.role === "user" ? "justify-end" : ""
+              className={`p-3 rounded-lg max-w-[85%] relative ${
+                message.role === "user"
+                  ? "bg-purple-100 text-purple-800"
+                  : "bg-white shadow-sm border border-slate-200 text-slate-700"
               }`}
             >
-              {message.role !== "user" && (
-                <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                  {persona.name.charAt(0)}
-                </div>
-              )}
-
               <div
-                className={`p-3 rounded-lg max-w-[85%] relative ${
+                className={`absolute ${
                   message.role === "user"
-                    ? "bg-purple-100 text-purple-800"
-                    : "bg-white shadow-sm border border-slate-200 text-slate-700"
-                }`}
-              >
-                <div
-                  className={`absolute ${
-                    message.role === "user"
-                      ? "right-[-8px] top-3 w-4 h-4 bg-purple-100"
-                      : "left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200"
-                  } transform rotate-45`}
-                ></div>
-                <p className={`text-sm relative z-10`}>{message.content}</p>
-              </div>
-
-              {message.role === "user" && (
-                <div className="h-8 w-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-                  U
-                </div>
-              )}
+                    ? "right-[-8px] top-3 w-4 h-4 bg-purple-100"
+                    : "left-[-8px] top-3 w-4 h-4 bg-white border-l border-t border-slate-200"
+                } transform rotate-45`}
+              ></div>
+              <p className={`text-sm relative z-10`}>{message.content}</p>
             </div>
-          )
-        )}
-        {isLoading && (
+
+            {message.role === "user" && (
+              <div className="h-8 w-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                U
+              </div>
+            )}
+          </div>
+        ))}
+        {isLoading && messages.length > 0 && (
           <div className="flex items-start space-x-3 animate-fade-in">
             <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
               {persona.name.charAt(0)}
