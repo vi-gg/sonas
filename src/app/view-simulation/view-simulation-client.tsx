@@ -455,8 +455,8 @@ export default function ViewSimulationClient({
         .DialogContent button[type="button"][class*="absolute"],
         [data-radix-dialog-close],
         button[aria-label="Close"],
-        button:has(.lucide-x),
-        button:has(svg[stroke="currentColor"]) {
+        button:has(.lucide-x) {
+          /* Removed overly broad selector: button:has(svg[stroke="currentColor"]) */
           display: none !important;
           opacity: 0 !important;
           visibility: hidden !important;

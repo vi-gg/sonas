@@ -292,6 +292,12 @@ export default function NewSimulationClient({
       const target = e.target as HTMLElement;
       const anchor = target.closest("a");
 
+      // First, check if the click is inside a logout form
+      // This ensures the logout button works even when simulation is running
+      if (target.closest('form[onsubmit*="handleLogout"]')) {
+        return; // Do not intercept logout form clicks
+      }
+
       if (
         anchor &&
         anchor.href &&

@@ -135,7 +135,6 @@ export default function AccountClient({ user }: AccountClientProps) {
       userName={name || "User"}
       userEmail={user.email || ""}
       userInitials={getInitials()}
-      orgName={orgName}
     >
       <div className="mb-8 flex items-center justify-between">
         <div>
