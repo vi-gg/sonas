@@ -22,6 +22,9 @@ export default function HomePage() {
   const heroBodyRef = useRef<HTMLParagraphElement>(null); // Ref for the hero body copy
   const heroImageRef = useRef<HTMLDivElement>(null); // Ref for the hero image container
   const heroButtonRef = useRef<HTMLDivElement>(null); // Ref for the hero button container
+  const navbarRef = useRef<HTMLDivElement>(null); // Ref for the navbar
+  const navLinksRef = useRef<(HTMLAnchorElement | null)[]>([]); // Refs for navigation links
+  const ctaButtonsRef = useRef<(HTMLAnchorElement | null)[]>([]); // Refs for CTA buttons
 
   // Master timeline for all animations
   const masterTimeline = useRef<gsap.core.Timeline | null>(null);
@@ -82,7 +85,8 @@ export default function HomePage() {
       heroHeadingRef.current &&
       heroBodyRef.current &&
       heroImageRef.current &&
-      heroButtonRef.current
+      heroButtonRef.current &&
+      navbarRef.current
     ) {
       // Clear any existing animations
       masterTimeline.current.clear();
@@ -138,7 +142,7 @@ export default function HomePage() {
         opacity: 0,
       });
 
-      // Set initial state for image and button
+      // Set initial state for image, button and navbar
       gsap.set(heroImageRef.current, {
         y: 50,
         opacity: 0,
@@ -147,6 +151,11 @@ export default function HomePage() {
       gsap.set(heroButtonRef.current, {
         y: 30,
         opacity: 0,
+      });
+
+      gsap.set(navbarRef.current, {
+        opacity: 0,
+        pointerEvents: "none",
       });
 
       // Build the complete animation sequence
@@ -171,7 +180,7 @@ export default function HomePage() {
         // 3. Fade out the loading container
         .to(loadingContainerRef.current, {
           opacity: 0,
-          duration: 1,
+          duration: 0.5, // Reduced from 1.0 to 0.5 for faster transition
           ease: "power1.inOut",
         })
         // 4. Animate all elements with a coordinated sequence
@@ -182,18 +191,18 @@ export default function HomePage() {
             opacity: 1,
             duration: 1,
             ease: "expo.out",
-            stagger: 0.08, // Slightly faster stagger for smoother flow
+            stagger: 0.2, // Slightly faster stagger for smoother flow
           },
-          "-=0.5" // Start slightly before the loading container fades out completely
+          "-=0.2" // Start much sooner - only 0.3s gap after blue background fills screen
         )
         .to(
           bodyInnerSpans,
           {
             y: 0,
             opacity: 1,
-            duration: 0.8,
+            duration: 1.2,
             ease: "expo.out",
-            stagger: 0.05, // Faster stagger for body text
+            stagger: 0.1, // Faster stagger for body text
           },
           "-=0.6" // More overlap with heading animation
         )
@@ -216,9 +225,110 @@ export default function HomePage() {
             ease: "expo.out",
           },
           "-=0.9" // Start while image is still animating
+        )
+        // Animate navbar to appear along with body text
+        .to(
+          navbarRef.current,
+          {
+            opacity: 1,
+            pointerEvents: "auto",
+            duration: 0.8,
+            ease: "expo.out",
+          },
+          "-=0.8" // Start at the same time as body text
         );
     }
   }, []);
+
+  // Setup hover animations with GSAP
+  useEffect(() => {
+    // Only setup hover animations after the main animation is complete
+    if (animationStep === 3) {
+      // Get all navigation links
+      const navLinks = document.querySelectorAll(".nav-link");
+      const ctaButtons = document.querySelectorAll(".cta-button");
+
+      // Setup hover animations for navigation links
+      navLinks.forEach((link) => {
+        link.addEventListener("mouseenter", () => {
+          gsap.to(link, {
+            opacity: 0.8,
+            textDecoration: "underline",
+            duration: 0.2,
+            ease: "power1.out",
+          });
+        });
+
+        link.addEventListener("mouseleave", () => {
+          gsap.to(link, {
+            opacity: 1,
+            textDecoration: "none",
+            duration: 0.2,
+            ease: "power1.out",
+          });
+        });
+      });
+
+      // Setup hover animations for CTA buttons
+      ctaButtons.forEach((button) => {
+        if (button.classList.contains("primary-cta")) {
+          button.addEventListener("mouseenter", () => {
+            gsap.to(button, {
+              backgroundColor: "#0044CC",
+              scale: 1.05,
+              duration: 0.3,
+              ease: "power1.out",
+            });
+          });
+
+          button.addEventListener("mouseleave", () => {
+            gsap.to(button, {
+              backgroundColor: "#0055FF",
+              scale: 1,
+              duration: 0.3,
+              ease: "power1.out",
+            });
+          });
+        } else if (button.classList.contains("secondary-cta")) {
+          button.addEventListener("mouseenter", () => {
+            gsap.to(button, {
+              backgroundColor: "#FFFFFF",
+              color: "#000000",
+              scale: 1.05,
+              duration: 0.3,
+              ease: "power1.out",
+            });
+          });
+
+          button.addEventListener("mouseleave", () => {
+            gsap.to(button, {
+              backgroundColor: "transparent",
+              color: "#FFFFFF",
+              scale: 1,
+              duration: 0.3,
+              ease: "power1.out",
+            });
+          });
+        } else if (button.classList.contains("signup-cta")) {
+          button.addEventListener("mouseenter", () => {
+            gsap.to(button, {
+              backgroundColor: "#333333",
+              duration: 0.3,
+              ease: "power1.out",
+            });
+          });
+
+          button.addEventListener("mouseleave", () => {
+            gsap.to(button, {
+              backgroundColor: "#000000",
+              duration: 0.3,
+              ease: "power1.out",
+            });
+          });
+        }
+      });
+    }
+  }, [animationStep]);
 
   // Format count to always have two digits (e.g., 01, 09, 10)
   const formattedCount = count.toString().padStart(2, "0");
@@ -259,11 +369,8 @@ export default function HomePage() {
         {/* Desktop & Mobile Navigation */}
         {/* Ensure nav is only visible/interactive after loading */}
         <div
-          className={`navbar px-4 md:px-8 h-16 w-full border-b-violet-50 absolute flex items-center justify-between z-50 bg-[#0055FF] transition-opacity duration-300 ${
-            animationStep === 3
-              ? "opacity-100"
-              : "opacity-0 pointer-events-none" // Hide and disable interaction during loading
-          }`}
+          ref={navbarRef}
+          className="navbar px-4 md:px-8 h-16 w-full border-b-violet-50 absolute flex items-center justify-between z-50 bg-[#0055FF] opacity-0 pointer-events-none"
         >
           <div className="left-content flex items-center gap-2">
             <div className="logo-dot w-3 md:w-4 h-3 md:h-4 bg-white rounded-full"></div>
@@ -314,31 +421,46 @@ export default function HomePage() {
           <div className="right-content hidden md:flex gap-4 lg:gap-8 text-sm text-white uppercase items-center">
             <Link
               href="#home-hero"
-              className="hover:opacity-80 hover:underline transition-all"
+              className="nav-link"
+              ref={(el) => {
+                navLinksRef.current[0] = el;
+              }}
             >
               Home
             </Link>
             <Link
               href="#psychographics"
-              className="hover:opacity-80 hover:underline transition-all"
+              className="nav-link"
+              ref={(el) => {
+                navLinksRef.current[1] = el;
+              }}
             >
               Psychographics
             </Link>
             <Link
               href="#demographics"
-              className="hover:opacity-80 hover:underline transition-all"
+              className="nav-link"
+              ref={(el) => {
+                navLinksRef.current[2] = el;
+              }}
             >
               Demographics
             </Link>
             <Link
               href="/login"
-              className="hover:opacity-80 hover:underline transition-all"
+              className="nav-link"
+              ref={(el) => {
+                navLinksRef.current[3] = el;
+              }}
             >
               Login
             </Link>
             <Link
-              className="py-2 px-4 lg:px-8 bg-black hover:bg-gray-800 transition-colors"
+              className="py-2 px-4 lg:px-8 bg-black cta-button signup-cta"
               href="/signup"
+              ref={(el) => {
+                ctaButtonsRef.current[0] = el;
+              }}
             >
               Sign up
             </Link>
@@ -351,33 +473,33 @@ export default function HomePage() {
                 <Link
                   href="#home-hero"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="hover:opacity-80 hover:underline transition-all"
+                  className="nav-link"
                 >
                   Home
                 </Link>
                 <Link
                   href="#psychographics"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="hover:opacity-80 hover:underline transition-all"
+                  className="nav-link"
                 >
                   Psychographics
                 </Link>
                 <Link
                   href="#demographics"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="hover:opacity-80 hover:underline transition-all"
+                  className="nav-link"
                 >
                   Demographics
                 </Link>
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="hover:opacity-80 hover:underline transition-all"
+                  className="nav-link"
                 >
                   Login
                 </Link>
                 <Link
-                  className="py-2 px-8 bg-black hover:bg-gray-800 transition-colors"
+                  className="py-2 px-8 bg-black cta-button signup-cta"
                   href="/signup"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -429,8 +551,11 @@ export default function HomePage() {
               className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8"
             >
               <Link
-                className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base hover:bg-gray-800 transition-colors"
+                className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base cta-button signup-cta"
                 href="/signup"
+                ref={(el) => {
+                  ctaButtonsRef.current[3] = el;
+                }}
               >
                 Get Started
               </Link>
@@ -525,14 +650,20 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full md:w-auto">
               <Link
-                className="py-3 px-8 md:px-10 bg-[#0055FF] text-white uppercase text-center hover:bg-[#0044CC] hover:scale-105 transition-all text-sm md:text-base"
+                className="py-3 px-8 md:px-10 bg-[#0055FF] text-white uppercase text-center text-sm md:text-base cta-button primary-cta"
                 href="/signup"
+                ref={(el) => {
+                  ctaButtonsRef.current[1] = el;
+                }}
               >
                 Start Now
               </Link>
               <Link
-                className="py-3 px-8 md:px-10 border border-white text-white uppercase text-center hover:bg-white hover:text-black hover:scale-105 transition-all text-sm md:text-base"
+                className="py-3 px-8 md:px-10 border border-white text-white uppercase text-center text-sm md:text-base cta-button secondary-cta"
                 href="/dashboard"
+                ref={(el) => {
+                  ctaButtonsRef.current[2] = el;
+                }}
               >
                 Learn More
               </Link>
@@ -559,9 +690,12 @@ export default function HomePage() {
               contribute to the project on{" "}
               <Link
                 href="https://github.com/your-github-repo" // Replace with actual GitHub link
-                className="underline opacity-70 hover:opacity-100 hover:underline transition-all"
+                className="nav-link underline opacity-70"
                 target="_blank"
                 rel="noopener noreferrer"
+                ref={(el) => {
+                  navLinksRef.current[7] = el;
+                }}
               >
                 GitHub
               </Link>
@@ -589,19 +723,28 @@ export default function HomePage() {
             <div className="flex flex-col gap-2 text-xs md:text-sm opacity-70">
               <Link
                 href="#"
-                className="hover:opacity-100 hover:underline transition-all"
+                className="nav-link"
+                ref={(el) => {
+                  navLinksRef.current[4] = el;
+                }}
               >
                 Terms
               </Link>
               <Link
                 href="#"
-                className="hover:opacity-100 hover:underline transition-all"
+                className="nav-link"
+                ref={(el) => {
+                  navLinksRef.current[5] = el;
+                }}
               >
                 Privacy Policy
               </Link>
               <Link
                 href="#"
-                className="hover:opacity-100 hover:underline transition-all"
+                className="nav-link"
+                ref={(el) => {
+                  navLinksRef.current[6] = el;
+                }}
               >
                 Cookie Policy
               </Link>
