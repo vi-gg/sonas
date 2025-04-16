@@ -264,12 +264,12 @@ function LogoutButton() {
       // Call the server action to sign out
       await signOut();
 
-      // Force client-side navigation to home page
-      router.push("/");
+      // Force full page navigation to home page
+      window.location.assign("/");
     } catch (error) {
       console.error("Logout error:", error);
-      // Ensure navigation happens even if there's an error
-      router.push("/");
+      // Ensure navigation happens even if there's an error - force full page navigation
+      window.location.assign("/");
     }
   };
 
