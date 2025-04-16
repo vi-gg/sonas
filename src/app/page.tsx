@@ -534,7 +534,8 @@ export default function HomePage() {
           id="home-hero"
           className="home-hero bg-[#0055FF] w-full h-screen relative pt-16"
         >
-          <div className="relative w-full px-4 md:px-6 z-20 pt-[15svh]">
+          {/* Desktop layout (default) and mobile/tablet layout with media queries */}
+          <div className="absolute top-[15svh] w-full px-4 md:px-6 z-20">
             <div className="overflow-hidden">
               <p
                 ref={heroHeadingRef}
@@ -543,9 +544,11 @@ export default function HomePage() {
                 Shaping the Science of predictive discovery for the future
               </p>
             </div>
+          </div>
 
-            {/* Text moved below heading with 2rem spacing */}
-            <div className="overflow-hidden mt-8">
+          {/* Body text - absolute for desktop, relative for mobile/tablet */}
+          <div className="absolute bottom-[25svh] w-full px-4 md:px-8 z-20 sm:static sm:mt-8 sm:bottom-auto md:absolute md:bottom-[25svh] md:mt-0">
+            <div className="overflow-hidden">
               <p
                 ref={heroBodyRef}
                 className="text-sm md:text-base max-w-full md:max-w-md text-white"
@@ -554,19 +557,6 @@ export default function HomePage() {
                 behavior at scale. Sonas creates digital worlds where decisions
                 and outcomes unfold with remarkable accuracy.
               </p>
-            </div>
-
-            {/* Button moved below text */}
-            <div ref={heroButtonRef} className="mt-6 z-20 flex justify-start">
-              <Link
-                className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base cta-button signup-cta"
-                href="/signup"
-                ref={(el) => {
-                  ctaButtonsRef.current[3] = el;
-                }}
-              >
-                Get Started
-              </Link>
             </div>
           </div>
 
@@ -578,6 +568,21 @@ export default function HomePage() {
               height={550}
               alt="Hero visualization"
             />
+            {/* Button - inside image container for desktop, moved below text for mobile/tablet */}
+            <div
+              ref={heroButtonRef}
+              className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8 sm:static sm:mt-6 sm:justify-start sm:pb-0 md:absolute md:justify-end md:bottom-0 md:left-0 md:mt-0"
+            >
+              <Link
+                className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base cta-button signup-cta"
+                href="/signup"
+                ref={(el) => {
+                  ctaButtonsRef.current[3] = el;
+                }}
+              >
+                Get Started
+              </Link>
+            </div>
           </div>
         </section>
         {/* SECTION 02 */}
