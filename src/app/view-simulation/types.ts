@@ -51,6 +51,14 @@ export interface ViewSimulationClientProps {
   user: User;
 }
 
+export type SortOption =
+  | "date-desc"
+  | "date-asc"
+  | "name-asc"
+  | "name-desc"
+  | "responses-desc"
+  | "responses-asc";
+
 export interface PersonaDetails {
   name: string;
   demographics: {

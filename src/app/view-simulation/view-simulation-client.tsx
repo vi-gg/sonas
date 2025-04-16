@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import {
+  LoaderCircle,
+  ChevronLeft,
+  ChevronRight,
+  FileSpreadsheet,
+} from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   Card,
@@ -14,12 +19,20 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createClient } from "../../../utils/supabase/client";
 import {
   Simulation,
   AggregatedResponse,
   PersonaDetails,
   ViewSimulationClientProps,
+  SortOption,
 } from "./types";
 import {
   extractPsychographicsFromResults,
@@ -38,12 +51,59 @@ export default function ViewSimulationClient({
 }: ViewSimulationClientProps) {
   const router = useRouter();
   const [simulations, setSimulations] = useState<Simulation[]>([]);
+  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [currentSimulation, setCurrentSimulation] = useState<Simulation | null>(
     null
   );
+
+  // Sort simulations based on the selected option and paginate
+  const sortedSimulations = useMemo(() => {
+    if (!simulations.length) return [];
+
+    // Sort the simulations
+
+    const sorted = [...simulations].sort((a, b) => {
+      switch (sortOption) {
+        case "date-desc":
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+        case "date-asc":
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        case "name-asc":
+          return a.simulation_name.localeCompare(b.simulation_name);
+        case "name-desc":
+          return b.simulation_name.localeCompare(a.simulation_name);
+        case "responses-desc":
+          return b.response_count - a.response_count;
+        case "responses-asc":
+          return a.response_count - b.response_count;
+        default:
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+      }
+    });
+
+    // Calculate pagination indexes
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+    // Slice array for current page
+    return sorted.slice(indexOfFirstItem, indexOfLastItem);
+  }, [simulations, sortOption, currentPage, itemsPerPage]);
+
+  // Calculate total pages
+  const totalPages = useMemo(() => {
+    return Math.ceil(simulations.length / itemsPerPage);
+  }, [simulations, itemsPerPage]);
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [aggregatedResults, setAggregatedResults] = useState<
     AggregatedResponse[]
@@ -177,10 +237,32 @@ export default function ViewSimulationClient({
       userInitials={user.email?.substring(0, 2).toUpperCase() || "U"}
     >
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Your Simulations</h1>
-        <Button onClick={() => router.push("/new-simulation")}>
-          Create New Simulation
-        </Button>
+        <h1 className="text-2xl font-bold text-black">Your Simulations</h1>
+        <div className="flex items-center gap-2">
+          <Select
+            value={sortOption}
+            onValueChange={(value) => setSortOption(value as SortOption)}
+          >
+            <SelectTrigger className="w-[220px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date-desc">Date (newest first)</SelectItem>
+              <SelectItem value="date-asc">Date (oldest first)</SelectItem>
+              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+              <SelectItem value="responses-desc">
+                Responses (high to low)
+              </SelectItem>
+              <SelectItem value="responses-asc">
+                Responses (low to high)
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => router.push("/new-simulation")}>
+            Create New Simulation
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -192,104 +274,177 @@ export default function ViewSimulationClient({
           <p className="text-red-500">{error}</p>
         </div>
       ) : simulations.length === 0 ? (
-        <div className="flex flex-col justify-center items-center h-64 space-y-4">
-          <p>You haven't created any simulations yet.</p>
+        <div className="flex flex-col justify-center items-center h-64 space-y-6 border border-dashed border-gray-300 rounded-lg p-8">
+          <div className="flex flex-col items-center">
+            <FileSpreadsheet className="h-16 w-16 text-gray-400" />
+            <h3 className="mt-4 text-xl font-medium text-gray-900">
+              No simulations found
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              You haven't created any simulations yet.
+            </p>
+          </div>
           <Button onClick={() => router.push("/new-simulation")}>
             Create Your First Simulation
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {simulations.map((simulation) => (
-            <Card
-              key={simulation.id}
-              className="border border-border rounded-lg overflow-hidden"
-            >
-              <CardHeader className="pb-2 relative">
-                <div className="absolute top-3 right-3">
-                  <span
-                    className={`flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${
-                      simulation.status === "completed"
-                        ? "bg-green-100 text-green-700"
-                        : simulation.status === "processing"
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedSimulations.map((simulation) => (
+              <Card
+                key={simulation.id}
+                className="border border-border rounded-lg overflow-hidden"
+              >
+                <CardHeader className="pb-2 relative">
+                  <div className="absolute top-3 right-3">
                     <span
-                      className={`mr-1 w-1.5 h-1.5 rounded-full ${
+                      className={`flex items-center text-xs px-2 py-0.5 rounded-full font-medium ${
                         simulation.status === "completed"
-                          ? "bg-green-500"
+                          ? "bg-green-100 text-green-700"
                           : simulation.status === "processing"
-                            ? "bg-amber-500"
-                            : "bg-gray-500"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-gray-100 text-gray-700"
                       }`}
-                    ></span>
-                    {simulation.status
-                      ? simulation.status.charAt(0).toUpperCase() +
-                        simulation.status.slice(1)
-                      : "Completed"}
-                  </span>
-                </div>
-                <CardTitle className="text-lg mt-1">
-                  {simulation.simulation_name}
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Simulation date: {formatDate(simulation.created_at)}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pb-4">
-                <div className="mt-1">
-                  <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-3 w-3 mr-1"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
                     >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {simulation.response_count} Responses
+                      <span
+                        className={`mr-1 w-1.5 h-1.5 rounded-full ${
+                          simulation.status === "completed"
+                            ? "bg-green-500"
+                            : simulation.status === "processing"
+                              ? "bg-amber-500"
+                              : "bg-gray-500"
+                        }`}
+                      ></span>
+                      {simulation.status
+                        ? simulation.status.charAt(0).toUpperCase() +
+                          simulation.status.slice(1)
+                        : "Completed"}
+                    </span>
                   </div>
-                </div>
-              </CardContent>
-              <Separator />
-              <CardFooter className="pt-3 pb-3 px-3">
-                <div className="grid grid-cols-3 w-full divide-x overflow-hidden rounded-md">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleViewDetails(simulation)}
-                    className="text-xs h-8 border-0 rounded-none flex-1"
-                  >
-                    Details
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleViewResults(simulation)}
-                    className="text-xs h-8 border-0 rounded-none flex-1"
-                  >
-                    Results
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleViewPersonas(simulation)}
-                    className="text-xs h-8 border-0 rounded-none flex-1"
-                  >
-                    Personas
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                  <CardTitle className="text-lg mt-1">
+                    {simulation.simulation_name}
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Simulation date: {formatDate(simulation.created_at)}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pb-4">
+                  <div className="mt-1">
+                    <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 mr-1"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      {simulation.response_count} Responses
+                    </div>
+                  </div>
+                </CardContent>
+                <Separator />
+                <CardFooter className="pt-3 pb-3 px-3">
+                  <div className="grid grid-cols-3 w-full divide-x overflow-hidden rounded-md">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewDetails(simulation)}
+                      className="text-xs h-8 border-0 rounded-none flex-1"
+                    >
+                      Details
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewResults(simulation)}
+                      className="text-xs h-8 border-0 rounded-none flex-1"
+                    >
+                      Results
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewPersonas(simulation)}
+                      className="text-xs h-8 border-0 rounded-none flex-1"
+                    >
+                      Personas
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+
+          {/* Pagination - Always shown but might be disabled */}
+          <div className="flex justify-center mt-8">
+            <nav
+              className="inline-flex rounded-md shadow-sm"
+              aria-label="Pagination"
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-l-md"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1 || simulations.length === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              {Array.from({ length: Math.min(totalPages, 5) }).map(
+                (_, index) => {
+                  // Show pages 1-5 or last 5 pages, or centered around current
+                  let pageToShow = index + 1;
+                  if (totalPages > 5 && currentPage > 3) {
+                    // If we're near the end, show last 5 pages
+                    if (currentPage > totalPages - 3) {
+                      pageToShow = totalPages - 4 + index;
+                    } else {
+                      // Otherwise center around current page
+                      pageToShow = currentPage - 2 + index;
+                    }
+                  }
+
+                  return (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      className={`mx-0.5 ${currentPage === pageToShow ? "bg-primary/10 text-primary" : ""}`}
+                      onClick={() => setCurrentPage(pageToShow)}
+                      disabled={simulations.length === 0}
+                    >
+                      {pageToShow}
+                    </Button>
+                  );
+                }
+              )}
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-r-md"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={
+                  currentPage === totalPages ||
+                  totalPages === 0 ||
+                  simulations.length === 0
+                }
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </nav>
+          </div>
+        </>
       )}
 
       {/* Global styles for dialogs */}
