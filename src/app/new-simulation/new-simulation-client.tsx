@@ -40,6 +40,14 @@ export default function NewSimulationClient({
       ageRanges: ["18-60"], // Default age range is 18 to 60
       householdIncomes: ["200k+"], // Default is household income over 200k
     },
+    psychographics: {
+      personality: [], // Personality traits
+      attitudes: [], // Attitudes
+      opinions: [], // Opinions
+      socialClass: [], // Social class
+      lifestyle: [], // Lifestyle
+      interests: [], // Interests
+    },
     questions: [], // No default questions
   });
 
@@ -111,6 +119,13 @@ export default function NewSimulationClient({
             "finance",
           ],
         },
+        // Psychographics
+        personality: formData.psychographics.personality,
+        attitudes: formData.psychographics.attitudes,
+        opinions: formData.psychographics.opinions,
+        social_class: formData.psychographics.socialClass,
+        lifestyle: formData.psychographics.lifestyle,
+        interests: formData.psychographics.interests,
       },
       survey: formData.questions.map(
         (q: { question: string; options: string[] }) => ({

@@ -11,6 +11,12 @@ import { AgeRangeSheet } from "@/components/age-range-sheet";
 import { CountrySheet } from "@/components/country-sheet";
 import { GenderSheet } from "@/components/gender-sheet";
 import { HouseholdIncomeSheet } from "@/components/household-income-sheet";
+import { PersonalitySheet } from "@/components/personality-sheet";
+import { AttitudesSheet } from "@/components/attitudes-sheet";
+import { OpinionsSheet } from "@/components/opinions-sheet";
+import { SocialClassSheet } from "@/components/social-class-sheet";
+import { LifestyleSheet } from "@/components/lifestyle-sheet";
+import { InterestsSheet } from "@/components/interests-sheet";
 
 interface NewSimulationFormStep02Props {
   className?: string;
@@ -31,6 +37,12 @@ export function NewSimulationFormStep02({
   const [countryOpen, setCountryOpen] = useState(false);
   const [genderOpen, setGenderOpen] = useState(false);
   const [householdIncomeOpen, setHouseholdIncomeOpen] = useState(false);
+  const [personalityOpen, setPersonalityOpen] = useState(false);
+  const [attitudesOpen, setAttitudesOpen] = useState(false);
+  const [opinionsOpen, setOpinionsOpen] = useState(false);
+  const [socialClassOpen, setSocialClassOpen] = useState(false);
+  const [lifestyleOpen, setLifestyleOpen] = useState(false);
+  const [interestsOpen, setInterestsOpen] = useState(false);
   const [responseCount, setResponseCount] = useState(formData.responseCount);
 
   // Update parent form data when response count changes
@@ -49,7 +61,9 @@ export function NewSimulationFormStep02({
   }, [formData?.responseCount]);
 
   const handleAddMoreCriteria = () => {
-    window.alert("Feature under development");
+    window.alert(
+      "You can select different criteria from the available options."
+    );
   };
 
   const handleNext = () => {
@@ -109,6 +123,73 @@ export function NewSimulationFormStep02({
     }
   };
 
+  // Handle psychographics sheet saves
+  const handlePersonalitySave = (personalities: string[]) => {
+    if (updateFormData) {
+      updateFormData({
+        psychographics: {
+          ...formData.psychographics,
+          personality: personalities,
+        },
+      });
+    }
+  };
+
+  const handleAttitudesSave = (attitudes: string[]) => {
+    if (updateFormData) {
+      updateFormData({
+        psychographics: {
+          ...formData.psychographics,
+          attitudes: attitudes,
+        },
+      });
+    }
+  };
+
+  const handleOpinionsSave = (opinions: string[]) => {
+    if (updateFormData) {
+      updateFormData({
+        psychographics: {
+          ...formData.psychographics,
+          opinions: opinions,
+        },
+      });
+    }
+  };
+
+  const handleSocialClassSave = (socialClasses: string[]) => {
+    if (updateFormData) {
+      updateFormData({
+        psychographics: {
+          ...formData.psychographics,
+          socialClass: socialClasses,
+        },
+      });
+    }
+  };
+
+  const handleLifestyleSave = (lifestyles: string[]) => {
+    if (updateFormData) {
+      updateFormData({
+        psychographics: {
+          ...formData.psychographics,
+          lifestyle: lifestyles,
+        },
+      });
+    }
+  };
+
+  const handleInterestsSave = (interests: string[]) => {
+    if (updateFormData) {
+      updateFormData({
+        psychographics: {
+          ...formData.psychographics,
+          interests: interests,
+        },
+      });
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -151,48 +232,88 @@ export function NewSimulationFormStep02({
             </div>
           </div>
         </div>
-        <div className="space-y-2">
-          <p className="font-medium text-black">
-            What type of filtering criteria do you want?
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Button
-              variant="outline"
-              className="font-normal"
-              onClick={() => setCountryOpen(true)}
-            >
-              Country
-            </Button>
-            <Button
-              variant="outline"
-              className="font-normal"
-              onClick={() => setGenderOpen(true)}
-            >
-              Gender
-            </Button>
-            <Button
-              variant="outline"
-              className="font-normal"
-              onClick={() => setAgeRangeOpen(true)}
-            >
-              Age Range
-            </Button>
-            <Button
-              variant="outline"
-              className="font-normal"
-              onClick={() => setHouseholdIncomeOpen(true)}
-            >
-              Household Income
-            </Button>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <p className="font-medium text-black">Demographics</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setCountryOpen(true)}
+              >
+                Country
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setGenderOpen(true)}
+              >
+                Gender
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setAgeRangeOpen(true)}
+              >
+                Age Range
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setHouseholdIncomeOpen(true)}
+              >
+                Household Income
+              </Button>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            className="w-full mt-2 justify-center"
-            onClick={handleAddMoreCriteria}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add more filtering criteria
-          </Button>
+
+          <div className="space-y-2">
+            <p className="font-medium text-black">Psychographics</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setPersonalityOpen(true)}
+              >
+                Personality
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setAttitudesOpen(true)}
+              >
+                Attitudes
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setOpinionsOpen(true)}
+              >
+                Opinions
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setSocialClassOpen(true)}
+              >
+                Social Class
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setLifestyleOpen(true)}
+              >
+                Lifestyle
+              </Button>
+              <Button
+                variant="outline"
+                className="font-normal"
+                onClick={() => setInterestsOpen(true)}
+              >
+                Interests
+              </Button>
+            </div>
+          </div>
         </div>
         <div className="flex justify-between pt-4">
           <Button variant="outline" onClick={handlePrevious}>
@@ -207,6 +328,7 @@ export function NewSimulationFormStep02({
         </div>
       </div>
 
+      {/* Demographics Sheets */}
       <AgeRangeSheet
         open={ageRangeOpen}
         onOpenChange={setAgeRangeOpen}
@@ -230,6 +352,44 @@ export function NewSimulationFormStep02({
         onOpenChange={setHouseholdIncomeOpen}
         onSave={handleIncomeSave}
         defaultValue={formData?.demographics?.householdIncomes?.[0] || "200k+"}
+      />
+
+      {/* Psychographics Sheets */}
+      <PersonalitySheet
+        open={personalityOpen}
+        onOpenChange={setPersonalityOpen}
+        onSave={handlePersonalitySave}
+        defaultValues={formData?.psychographics?.personality || []}
+      />
+      <AttitudesSheet
+        open={attitudesOpen}
+        onOpenChange={setAttitudesOpen}
+        onSave={handleAttitudesSave}
+        defaultValues={formData?.psychographics?.attitudes || []}
+      />
+      <OpinionsSheet
+        open={opinionsOpen}
+        onOpenChange={setOpinionsOpen}
+        onSave={handleOpinionsSave}
+        defaultValues={formData?.psychographics?.opinions || []}
+      />
+      <SocialClassSheet
+        open={socialClassOpen}
+        onOpenChange={setSocialClassOpen}
+        onSave={handleSocialClassSave}
+        defaultValues={formData?.psychographics?.socialClass || []}
+      />
+      <LifestyleSheet
+        open={lifestyleOpen}
+        onOpenChange={setLifestyleOpen}
+        onSave={handleLifestyleSave}
+        defaultValues={formData?.psychographics?.lifestyle || []}
+      />
+      <InterestsSheet
+        open={interestsOpen}
+        onOpenChange={setInterestsOpen}
+        onSave={handleInterestsSave}
+        defaultValues={formData?.psychographics?.interests || []}
       />
     </div>
   );
