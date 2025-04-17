@@ -116,15 +116,6 @@ export function NewSimulationFormStep04({
                 <p className="font-medium">{formData.simulationName}</p>
               </div>
 
-              <div>
-                <h4 className="font-medium text-sm text-gray-500 mb-1">
-                  Response Count
-                </h4>
-                <p className="font-medium">
-                  {formData.responseCount} responses
-                </p>
-              </div>
-
               <Separator className="my-2" />
 
               <div>
