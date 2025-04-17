@@ -30,7 +30,7 @@ export function NewSimulationFormStep02({
   className,
   onNext,
   onPrevious,
-  formData = { responseCount: 20 },
+  formData = { responseCount: 10 },
   updateFormData,
 }: NewSimulationFormStep02Props) {
   const [ageRangeOpen, setAgeRangeOpen] = useState(false);
@@ -43,20 +43,25 @@ export function NewSimulationFormStep02({
   const [socialClassOpen, setSocialClassOpen] = useState(false);
   const [lifestyleOpen, setLifestyleOpen] = useState(false);
   const [interestsOpen, setInterestsOpen] = useState(false);
-  const [responseCount, setResponseCount] = useState(formData.responseCount);
+  const [responseCount, setResponseCount] = useState(
+    Math.min(formData.responseCount, 10)
+  );
 
   // Update parent form data when response count changes
   const updateResponseCount = (value: number) => {
-    setResponseCount(value);
+    // Ensure value is capped at 10
+    const cappedValue = Math.min(value, 10);
+    setResponseCount(cappedValue);
     if (updateFormData) {
-      updateFormData({ responseCount: value });
+      updateFormData({ responseCount: cappedValue });
     }
   };
 
   // Initialize from form data
   useEffect(() => {
     if (formData?.responseCount) {
-      setResponseCount(formData.responseCount);
+      // Cap the response count at 10
+      setResponseCount(Math.min(formData.responseCount, 10));
     }
   }, [formData?.responseCount]);
 
@@ -214,7 +219,7 @@ export function NewSimulationFormStep02({
               value={responseCount}
               onChange={(e) => {
                 const value = parseInt(e.target.value);
-                if (!isNaN(value) && value >= 5 && value <= 50) {
+                if (!isNaN(value) && value >= 5 && value <= 10) {
                   updateResponseCount(value);
                 }
               }}
@@ -224,13 +229,17 @@ export function NewSimulationFormStep02({
               <Slider
                 value={[responseCount]}
                 min={5}
-                max={50}
+                max={10}
                 step={1}
                 onValueChange={(value) => updateResponseCount(value[0])}
                 className="w-full"
               />
             </div>
           </div>
+          <p className="text-sm text-muted-foreground italic">
+            Higher persona counts coming soon to enhance your simulation
+            experience.
+          </p>
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
