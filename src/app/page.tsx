@@ -1,19 +1,29 @@
 "use client";
 
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { gsap } from "gsap";
 import SplitType from "split-type";
 import Lenis from "lenis";
 
 export default function HomePage() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [count, setCount] = useState(0);
   // Animation steps: 0: counting, 1: scaling blue bg, 2: fading out, 3: finished
   const [animationStep, setAnimationStep] = useState(0); // 0: counting, 1: scaling blue bg, 2: fading out, 3: finished
+
+  // Check for ?code= in URL and redirect to login if found
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.location.search.includes("?code=")
+    ) {
+      router.push("/login");
+    }
+  }, [router]);
 
   const loadingContainerRef = useRef<HTMLDivElement>(null);
   const blueBgRef = useRef<HTMLDivElement>(null);
