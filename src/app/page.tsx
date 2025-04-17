@@ -229,9 +229,21 @@ export default function HomePage() {
           heroImageRef.current,
           {
             y: 0,
-            opacity: 1,
+            opacity: function () {
+              // Only animate to opacity 1 on desktop, keep 0 on tablet and below
+              return window.innerWidth >= 1024 ? 1 : 0;
+            },
             duration: 1.2,
             ease: "expo.out",
+            onComplete: function () {
+              // Ensure proper visibility after animation
+              if (window.innerWidth < 1024) {
+                gsap.set(heroImageRef.current, {
+                  opacity: 0,
+                  visibility: "hidden",
+                });
+              }
+            },
           },
           "-=0.8" // Start while text is still animating
         )
@@ -566,28 +578,34 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-          <div ref={heroImageRef} className="w-full absolute left-0 bottom-0">
+          {/* Hero image container - hidden on tablet and below */}
+          <div
+            ref={heroImageRef}
+            className="w-full absolute left-0 bottom-0 md:!opacity-0 lg:!opacity-100"
+          >
             <Image
-              className="m-auto z-10 w-full max-w-[350px] md:max-w-[450px] lg:max-w-[550px] h-auto"
+              className="m-auto z-10 w-full max-w-[350px] md:max-w-[450px] lg:max-w-[550px] h-auto md:!hidden lg:!block"
               src="/images/home-hero-image.png"
               width={550}
               height={550}
               alt="Hero visualization"
             />
-            <div
-              ref={heroButtonRef}
-              className="w-full absolute left-0 bottom-0 z-20 flex justify-center md:justify-end pb-10 md:pb-20 px-4 md:pr-8"
+          </div>
+
+          {/* Button container - always visible */}
+          <div
+            ref={heroButtonRef}
+            className="w-full absolute left-0 bottom-0 z-20 flex justify-start md:justify-end pb-10 md:pb-20 px-4 md:pr-8"
+          >
+            <Link
+              className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base cta-button signup-cta"
+              href="/signup"
+              ref={(el) => {
+                ctaButtonsRef.current[3] = el;
+              }}
             >
-              <Link
-                className="py-2 px-8 bg-black text-white uppercase text-sm md:text-base cta-button signup-cta"
-                href="/signup"
-                ref={(el) => {
-                  ctaButtonsRef.current[3] = el;
-                }}
-              >
-                Get Started
-              </Link>
-            </div>
+              Get Started
+            </Link>
           </div>
         </section>
         {/* SECTION 02 */}
