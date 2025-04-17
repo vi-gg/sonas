@@ -717,9 +717,9 @@ export default function HomePage() {
           </div>
         </section>
         {/* SECTION 05 - FOOTER */}
-        <section className="w-full bg-[#0f0099] text-white min-h-screen py-16 md:h-[100svh] relative">
-          {/* Centered Background Image */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 opacity-20">
+        <section className="w-full bg-[#0f0099] text-white min-h-[50vh] py-16 md:h-[100svh] relative">
+          {/* Centered Background Image - Hidden on tablet and below */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-0 opacity-20 hidden md:block">
             <Image
               src="/images/home-footer-min.png"
               alt="Footer background decoration"
@@ -729,13 +729,13 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Existing Footer Content - Ensure it has higher z-index if needed */}
+          {/* Footer Content */}
           <div className="md:absolute top-8 left-0 md:left-8 max-w-full md:max-w-sm p-4 md:p-0 z-10">
             <p className="text-xs md:text-sm opacity-70">
               Sonas is an open source world simulation project. <br /> You can
               contribute to the project on{" "}
               <Link
-                href="https://github.com/your-github-repo" // Replace with actual GitHub link
+                href="https://github.com/vi-gg/sonas"
                 className="nav-link underline opacity-70"
                 target="_blank"
                 rel="noopener noreferrer"
